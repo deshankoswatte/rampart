@@ -29,15 +29,34 @@ import org.apache.ws.security.util.XmlSchemaDateFormat;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
-import org.opensaml.Configuration;
-import org.opensaml.common.SAMLException;
-import org.opensaml.common.SAMLObjectBuilder;
-import org.opensaml.saml2.core.*;
-import org.opensaml.xml.XMLObjectBuilderFactory;
-import org.opensaml.xml.io.*;
-import org.opensaml.xml.schema.XSString;
-import org.opensaml.xml.schema.impl.XSStringBuilder;
-import org.opensaml.xml.signature.*;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.core.xml.io.Marshaller;
+import org.opensaml.core.xml.io.MarshallerFactory;
+import org.opensaml.core.xml.io.MarshallingException;
+import org.opensaml.core.xml.schema.XSString;
+import org.opensaml.core.xml.schema.impl.XSStringBuilder;
+import org.opensaml.saml.common.SAMLException;
+import org.opensaml.saml.common.SAMLObjectBuilder;
+import org.opensaml.core.xml.XMLObjectBuilderFactory;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.AttributeValue;
+import org.opensaml.saml.saml2.core.AuthnContext;
+import org.opensaml.saml.saml2.core.AuthnContextClassRef;
+import org.opensaml.saml.saml2.core.AuthnStatement;
+import org.opensaml.saml.saml2.core.Conditions;
+import org.opensaml.saml.saml2.core.Issuer;
+import org.opensaml.saml.saml2.core.KeyInfoConfirmationDataType;
+import org.opensaml.saml.saml2.core.NameID;
+import org.opensaml.saml.saml2.core.Subject;
+import org.opensaml.saml.saml2.core.SubjectConfirmation;
+import org.opensaml.saml.saml2.core.SubjectConfirmationData;
+import org.opensaml.xmlsec.signature.KeyInfo;
+import org.opensaml.xmlsec.signature.Signature;
+import org.opensaml.xmlsec.signature.X509Data;
+import org.opensaml.xmlsec.signature.support.SignatureException;
+import org.opensaml.xmlsec.signature.support.Signer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -426,7 +445,7 @@ public class SAML2TokenIssuer implements TokenIssuer {
     }
 
     private KeyInfoConfirmationDataType createKeyInfoConfirmationDataType() {
-        XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
+        XMLObjectBuilderFactory builderFactory = XMLObjectProviderRegistrySupport.getBuilderFactory();
         @SuppressWarnings({"unchecked"}) SAMLObjectBuilder<KeyInfoConfirmationDataType> keyInfoSubjectConfirmationDataBuilder =
                 (SAMLObjectBuilder<KeyInfoConfirmationDataType>) builderFactory.getBuilder
                         (KeyInfoConfirmationDataType.TYPE_NAME);
@@ -499,9 +518,9 @@ public class SAML2TokenIssuer implements TokenIssuer {
         try {
             KeyInfo keyInfo = (KeyInfo) CommonUtil.buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
             X509Data x509Data = (X509Data) CommonUtil.buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
-            org.opensaml.xml.signature.X509Certificate cert
-                    = (org.opensaml.xml.signature.X509Certificate) CommonUtil.buildXMLObject
-                    (org.opensaml.xml.signature.X509Certificate.DEFAULT_ELEMENT_NAME);
+            org.opensaml.xmlsec.signature.X509Certificate cert
+                    = (org.opensaml.xmlsec.signature.X509Certificate) CommonUtil.buildXMLObject
+                    (org.opensaml.xmlsec.signature.X509Certificate.DEFAULT_ELEMENT_NAME);
             String value
                     = org.apache.xml.security.utils.Base64.encode(signKeyHolder.getEntityCertificate().getEncoded());
 
@@ -515,7 +534,7 @@ public class SAML2TokenIssuer implements TokenIssuer {
             signatureList.add(signature);
 
             //Marshall and Sign
-            MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration.getMarshallerFactory();
+            MarshallerFactory marshallerFactory = XMLObjectProviderRegistrySupport.getMarshallerFactory();
             Marshaller marshaller = marshallerFactory.getMarshaller(assertion);
             marshaller.marshall(assertion, document);
 
@@ -622,7 +641,7 @@ public class SAML2TokenIssuer implements TokenIssuer {
             attribute.setName("Name");
             attribute.setNameFormat("urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified");
 
-            XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
+            XMLObjectBuilderFactory builderFactory = XMLObjectProviderRegistrySupport.getBuilderFactory();
 
             XSStringBuilder attributeValueBuilder = (XSStringBuilder) builderFactory
                     .getBuilder(XSString.TYPE_NAME);

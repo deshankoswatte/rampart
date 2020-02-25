@@ -1,3 +1,19 @@
+/*
+ * Copyright 2004,2005 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.rahas.impl.util;
 
 import org.apache.axiom.util.UIDGenerator;
@@ -11,21 +27,37 @@ import org.apache.ws.security.util.Base64;
 import org.apache.xml.security.signature.XMLSignature;
 import org.apache.xml.security.utils.EncryptionConstants;
 import org.joda.time.DateTime;
-import org.opensaml.Configuration;
-import org.opensaml.saml1.core.*;
-import org.opensaml.ws.wssecurity.KeyIdentifier;
-import org.opensaml.ws.wssecurity.SecurityTokenReference;
-import org.opensaml.ws.wssecurity.WSSecurityConstants;
-import org.opensaml.xml.encryption.CipherData;
-import org.opensaml.xml.encryption.CipherValue;
-import org.opensaml.xml.encryption.EncryptedKey;
-import org.opensaml.xml.encryption.EncryptionMethod;
-import org.opensaml.xml.io.MarshallingException;
-import org.opensaml.xml.schema.XSString;
-import org.opensaml.xml.schema.impl.XSStringBuilder;
-import org.opensaml.xml.security.SecurityHelper;
-import org.opensaml.xml.security.credential.Credential;
-import org.opensaml.xml.signature.*;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.core.xml.io.MarshallingException;
+import org.opensaml.core.xml.schema.XSString;
+import org.opensaml.core.xml.schema.impl.XSStringBuilder;
+import org.opensaml.saml.saml1.core.Assertion;
+import org.opensaml.saml.saml1.core.Attribute;
+import org.opensaml.saml.saml1.core.AttributeStatement;
+import org.opensaml.saml.saml1.core.AttributeValue;
+import org.opensaml.saml.saml1.core.AuthenticationStatement;
+import org.opensaml.saml.saml1.core.Conditions;
+import org.opensaml.saml.saml1.core.ConfirmationMethod;
+import org.opensaml.saml.saml1.core.NameIdentifier;
+import org.opensaml.saml.saml1.core.Statement;
+import org.opensaml.saml.saml1.core.Subject;
+import org.opensaml.saml.saml1.core.SubjectConfirmation;
+import org.opensaml.saml.saml1.core.SubjectStatement;
+import org.opensaml.security.credential.Credential;
+import org.opensaml.security.credential.CredentialSupport;
+import org.opensaml.soap.wssecurity.KeyIdentifier;
+import org.opensaml.soap.wssecurity.SecurityTokenReference;
+import org.opensaml.soap.wssecurity.WSSecurityConstants;
+import org.opensaml.xmlsec.encryption.CipherData;
+import org.opensaml.xmlsec.encryption.CipherValue;
+import org.opensaml.xmlsec.encryption.EncryptedKey;
+import org.opensaml.xmlsec.encryption.EncryptionMethod;
+import org.opensaml.xmlsec.signature.KeyInfo;
+import org.opensaml.xmlsec.signature.Signature;
+import org.opensaml.xmlsec.signature.X509Data;
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
+import org.opensaml.xmlsec.signature.support.SignatureException;
+import org.opensaml.xmlsec.signature.support.Signer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -65,7 +97,7 @@ public class SAMLUtils {
      */
     public static Assertion buildAssertion(Element assertionElement) {
 
-       return (Assertion) Configuration.getBuilderFactory().
+       return (Assertion) XMLObjectProviderRegistrySupport.getBuilderFactory().
                getBuilder(Assertion.DEFAULT_ELEMENT_NAME).buildObject(assertionElement);
 
     }
@@ -75,8 +107,8 @@ public class SAMLUtils {
      * <ol>
      *     <li>Get certificate for issuer alias</li>
      *     <li>Extract private key</li>
-     *     <li>Create {@link org.opensaml.xml.security.credential.Credential} object</li>
-     *     <li>Create {@link org.opensaml.xml.signature.Signature} object</li>
+     *     <li>Create {@link org.opensaml.security.credential.Credential} object</li>
+     *     <li>Create {@link org.opensaml.xmlsec.signature.Signature} object</li>
      *     <li>Set Signature object in Assertion</li>
      *     <li>Prepare signing environment - SecurityHelper.prepareSignatureParams</li>
      *     <li>Perform signing action - Signer.signObject</li>
@@ -111,7 +143,7 @@ public class SAMLUtils {
             throw new TrustException("issuerPrivateKeyNotFound", new Object[]{issuerKeyAlias});
         }
 
-        Credential signingCredential = SecurityHelper.getSimpleCredential(issuerPublicKey, issuerPrivateKey);
+        Credential signingCredential = CredentialSupport.getSimpleCredential(issuerPublicKey, issuerPrivateKey);
 
         Signature signature = (Signature) CommonUtil.buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
         signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
@@ -128,7 +160,7 @@ public class SAMLUtils {
 
             Document document = CommonUtil.getOMDOMDocument();
 
-            Configuration.getMarshallerFactory().getMarshaller(assertion).marshall(assertion, document);
+            XMLObjectProviderRegistrySupport.getMarshallerFactory().getMarshaller(assertion).marshall(assertion, document);
         } catch (MarshallingException e) {
             log.debug("Error while marshalling assertion ", e);
             throw new TrustException("errorMarshallingAssertion", e);
@@ -460,7 +492,7 @@ public class SAMLUtils {
         attribute.setAttributeName(name);
         attribute.setAttributeNamespace(namespace);
 
-        XSStringBuilder attributeValueBuilder = (XSStringBuilder)Configuration.getBuilderFactory().
+        XSStringBuilder attributeValueBuilder = (XSStringBuilder)XMLObjectProviderRegistrySupport.getBuilderFactory().
                 getBuilder(XSString.TYPE_NAME);
 
         XSString stringValue

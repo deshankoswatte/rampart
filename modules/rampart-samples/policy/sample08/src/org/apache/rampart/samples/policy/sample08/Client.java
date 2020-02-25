@@ -29,7 +29,7 @@ import org.apache.rahas.Token;
 import org.apache.rahas.TrustUtil;
 import org.apache.rahas.client.STSClient;
 import org.apache.ws.secpolicy.SP11Constants;
-import org.opensaml.common.xml.SAMLConstants;
+import org.opensaml.saml.common.xml.SAMLConstants;
 
 import java.net.URL;
 

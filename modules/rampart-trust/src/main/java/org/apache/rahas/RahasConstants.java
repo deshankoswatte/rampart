@@ -16,7 +16,6 @@
 
 package org.apache.rahas;
 
-
 public class RahasConstants {
 
     public final static int VERSION_05_02 = 1;

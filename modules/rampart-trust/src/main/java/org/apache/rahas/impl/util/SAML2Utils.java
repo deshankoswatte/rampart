@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.rahas.impl.util;
 
 import org.apache.axiom.om.OMAbstractFactory;
@@ -32,19 +31,31 @@ import org.apache.xml.security.keys.KeyInfo;
 import org.apache.xml.security.keys.content.X509Data;
 import org.apache.xml.security.keys.content.x509.XMLX509Certificate;
 import org.joda.time.DateTime;
-import org.opensaml.Configuration;
-import org.opensaml.DefaultBootstrap;
-import org.opensaml.common.SAMLVersion;
-import org.opensaml.saml2.core.NameID;
-import org.opensaml.saml2.core.*;
-import org.opensaml.xml.ConfigurationException;
-import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.io.*;
+import org.opensaml.core.config.InitializationException;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.saml.common.SAMLVersion;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.AuthnStatement;
+import org.opensaml.saml.saml2.core.Conditions;
+import org.opensaml.saml.saml2.core.Issuer;
+import org.opensaml.saml.saml2.core.NameID;
+import org.opensaml.saml.saml2.core.Subject;
+import org.opensaml.saml.saml2.core.SubjectConfirmation;
+import org.opensaml.saml.saml2.core.SubjectConfirmationData;
+import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.io.Marshaller;
+import org.opensaml.core.xml.io.MarshallerFactory;
+import org.opensaml.core.xml.io.MarshallingException;
+import org.opensaml.core.xml.io.Unmarshaller;
+import org.opensaml.core.xml.io.UnmarshallerFactory;
+import org.opensaml.core.xml.io.UnmarshallingException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+import org.wso2.carbon.identity.saml.common.util.SAMLInitializer;
 import org.xml.sax.SAXException;
 
 import javax.security.auth.callback.Callback;
@@ -65,7 +76,7 @@ public class SAML2Utils {
     public static Element getElementFromAssertion(XMLObject xmlObj) throws TrustException {
         try {
             
-            MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration.getMarshallerFactory();
+            MarshallerFactory marshallerFactory = XMLObjectProviderRegistrySupport.getMarshallerFactory();
             Marshaller marshaller = marshallerFactory.getMarshaller(xmlObj);
             Element assertionElement = marshaller.marshall(xmlObj,
                     ((DOMMetaFactory)OMAbstractFactory.getMetaFactory(OMAbstractFactory.FEATURE_DOM)).newDocumentBuilderFactory().newDocumentBuilder().newDocument());
@@ -94,7 +105,7 @@ public class SAML2Utils {
 
         //build the assertion by unmarhalling the DOM element.
         try {
-            DefaultBootstrap.bootstrap();
+            SAMLInitializer.doBootstrap();
 
             String keyInfoElementString = elem.toString();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -102,14 +113,14 @@ public class SAML2Utils {
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
             Document document = docBuilder.parse(new ByteArrayInputStream(keyInfoElementString.trim().getBytes()));
             Element element = document.getDocumentElement();
-            UnmarshallerFactory unmarshallerFactory = Configuration
+            UnmarshallerFactory unmarshallerFactory = XMLObjectProviderRegistrySupport
                     .getUnmarshallerFactory();
             Unmarshaller unmarshaller = unmarshallerFactory
                     .getUnmarshaller(element);
             assertion = (Assertion) unmarshaller
                     .unmarshall(element);
         }
-        catch (ConfigurationException e) {
+        catch (InitializationException e) {
             throw new WSSecurityException(
                     WSSecurityException.FAILURE, "Failure in bootstrapping", null, e);
         } catch (UnmarshallingException e) {
@@ -176,7 +187,7 @@ public class SAML2Utils {
                 XMLObject KIElem = null;
                 List<XMLObject> scDataElements = scData.getOrderedChildren();
                 for (XMLObject xmlObj : scDataElements) {
-                    if (xmlObj instanceof org.opensaml.xml.signature.KeyInfo) {
+                    if (xmlObj instanceof org.opensaml.xmlsec.signature.KeyInfo) {
                         KIElem = xmlObj;
                         break;
                     }
@@ -187,7 +198,7 @@ public class SAML2Utils {
                 // Generate a DOM element from the XMLObject.
                 if (KIElem != null) {
 
-                    MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration.getMarshallerFactory();
+                    MarshallerFactory marshallerFactory = XMLObjectProviderRegistrySupport.getMarshallerFactory();
                     Marshaller marshaller = marshallerFactory.getMarshaller(KIElem);
                     try {
                         keyInfoElement = marshaller.marshall(KIElem,

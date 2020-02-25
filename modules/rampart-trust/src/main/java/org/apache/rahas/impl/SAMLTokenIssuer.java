@@ -36,9 +36,15 @@ import org.apache.ws.security.util.Loader;
 import org.apache.ws.security.util.XmlSchemaDateFormat;
 
 import org.joda.time.DateTime;
-import org.opensaml.common.SAMLException;
-import org.opensaml.saml1.core.*;
-import org.opensaml.xml.signature.KeyInfo;
+import org.opensaml.saml.common.SAMLException;
+import org.opensaml.saml.saml1.core.Assertion;
+import org.opensaml.saml.saml1.core.Attribute;
+import org.opensaml.saml.saml1.core.AttributeStatement;
+import org.opensaml.saml.saml1.core.AuthenticationStatement;
+import org.opensaml.saml.saml1.core.NameIdentifier;
+import org.opensaml.saml.saml1.core.Subject;
+import org.opensaml.saml.saml1.core.Statement;
+import org.opensaml.xmlsec.signature.KeyInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

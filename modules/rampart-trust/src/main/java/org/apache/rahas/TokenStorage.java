@@ -16,7 +16,6 @@
 
 package org.apache.rahas;
 
-
 /**
  * The storage interface to store security tokens and
  * manipulate them  

@@ -37,12 +37,12 @@ import org.apache.ws.security.processor.EncryptedKeyProcessor;
 import org.apache.ws.security.util.Base64;
 import org.apache.ws.security.util.Loader;
 import org.apache.xml.security.utils.EncryptionConstants;
-import org.opensaml.Configuration;
-import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.XMLObjectBuilder;
-import org.opensaml.xml.encryption.EncryptedKey;
-import org.opensaml.xml.signature.KeyInfo;
-import org.opensaml.xml.signature.X509Data;
+import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.XMLObjectBuilder;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.xmlsec.encryption.EncryptedKey;
+import org.opensaml.xmlsec.signature.KeyInfo;
+import org.opensaml.xmlsec.signature.X509Data;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -311,7 +311,7 @@ public class CommonUtil {
      * @throws org.apache.rahas.TrustException If unable to find the appropriate builder.
      */
     public static XMLObject buildXMLObject(QName objectQName) throws TrustException {
-        XMLObjectBuilder builder = Configuration.getBuilderFactory().getBuilder(objectQName);
+        XMLObjectBuilder builder = XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(objectQName);
         if (builder == null) {
             log.debug("Unable to find OpenSAML builder for object " + objectQName);
             throw new TrustException("builderNotFound",new Object[]{objectQName});
@@ -420,9 +420,9 @@ public class CommonUtil {
         }
         String base64Cert = Base64.encode(clientCertBytes);
 
-        org.opensaml.xml.signature.X509Certificate x509Certificate
-                = (org.opensaml.xml.signature.X509Certificate)CommonUtil.buildXMLObject
-                (org.opensaml.xml.signature.X509Certificate.DEFAULT_ELEMENT_NAME);
+        org.opensaml.xmlsec.signature.X509Certificate x509Certificate
+                = (org.opensaml.xmlsec.signature.X509Certificate)CommonUtil.buildXMLObject
+                (org.opensaml.xmlsec.signature.X509Certificate.DEFAULT_ELEMENT_NAME);
 
         x509Certificate.setValue(base64Cert);
 

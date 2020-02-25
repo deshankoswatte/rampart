@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.rahas;
 
 import org.apache.axis2.AxisFault;
@@ -25,7 +26,7 @@ import org.apache.axis2.description.AxisModule;
 import org.apache.axis2.modules.Module;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
-import org.opensaml.xml.ConfigurationException;
+import org.opensaml.core.config.InitializationException;
 
 public class Rahas implements Module {
 
@@ -39,7 +40,7 @@ public class Rahas implements Module {
 
             // Initialize XML security
             org.apache.xml.security.Init.init();
-        } catch (ConfigurationException ex) {
+        } catch (InitializationException ex) {
             throw new AxisFault("Failed to bootstrap OpenSAML", ex);
         }
     }

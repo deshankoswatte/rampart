@@ -17,13 +17,10 @@
 package org.apache.rahas.impl.util;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.soap.SOAPEnvelope;
-import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.rahas.Rahas;
 import org.apache.rahas.TrustException;
 import org.apache.rahas.TrustUtil;
 import org.apache.rahas.test.util.AbstractTestCase;
@@ -33,11 +30,16 @@ import org.apache.ws.security.components.crypto.Crypto;
 import org.apache.ws.security.message.WSSecEncryptedKey;
 import org.apache.ws.security.util.Base64;
 import org.joda.time.DateTime;
-import org.opensaml.Configuration;
-import org.opensaml.saml1.core.*;
-import org.opensaml.xml.io.MarshallerFactory;
-import org.opensaml.xml.io.MarshallingException;
-import org.opensaml.xml.signature.X509Data;
+import org.opensaml.saml.saml1.core.Assertion;
+import org.opensaml.saml.saml1.core.Attribute;
+import org.opensaml.saml.saml1.core.AttributeStatement;
+import org.opensaml.saml.saml1.core.Conditions;
+import org.opensaml.saml.saml1.core.ConfirmationMethod;
+import org.opensaml.saml.saml1.core.NameIdentifier;
+import org.opensaml.saml.saml1.core.Statement;
+import org.opensaml.saml.saml1.core.Subject;
+import org.opensaml.core.xml.io.MarshallingException;
+import org.opensaml.xmlsec.signature.X509Data;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -46,12 +48,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
@@ -146,10 +143,10 @@ public class SAMLUtilsTest extends AbstractTestCase {
 
         WSSecEncryptedKey encryptedKey = getWSEncryptedKey();
 
-        org.opensaml.xml.encryption.EncryptedKey samlEncryptedKey
+        org.opensaml.xmlsec.encryption.EncryptedKey samlEncryptedKey
                 = SAMLUtils.createEncryptedKey(getTestCertificate(), encryptedKey);
 
-        org.opensaml.xml.signature.KeyInfo keyInfo = SAMLUtils.createKeyInfo(samlEncryptedKey);
+        org.opensaml.xmlsec.signature.KeyInfo keyInfo = SAMLUtils.createKeyInfo(samlEncryptedKey);
 
         marshallerFactory.getMarshaller(keyInfo).marshall(keyInfo);
 
@@ -161,7 +158,7 @@ public class SAMLUtilsTest extends AbstractTestCase {
 
         X509Data x509Data = CommonUtil.createX509Data(getTestCertificate());
 
-        org.opensaml.xml.signature.KeyInfo keyInfo = SAMLUtils.createKeyInfo(x509Data);
+        org.opensaml.xmlsec.signature.KeyInfo keyInfo = SAMLUtils.createKeyInfo(x509Data);
 
         marshallerFactory.getMarshaller(keyInfo).marshall(keyInfo);
 
@@ -199,7 +196,7 @@ public class SAMLUtilsTest extends AbstractTestCase {
 
         X509Data x509Data = CommonUtil.createX509Data(getTestCertificate());
 
-        org.opensaml.xml.signature.KeyInfo keyInfo = SAMLUtils.createKeyInfo(x509Data);
+        org.opensaml.xmlsec.signature.KeyInfo keyInfo = SAMLUtils.createKeyInfo(x509Data);
 
         Subject subject
                 = SAMLUtils.createSubject(nameIdentifier, "urn:oasis:names:tc:SAML:1.0:cm:holder-of-key", keyInfo);
@@ -244,7 +241,7 @@ public class SAMLUtilsTest extends AbstractTestCase {
 
         WSSecEncryptedKey encryptedKey = getWSEncryptedKey();
 
-        org.opensaml.xml.encryption.EncryptedKey samlEncryptedKey
+        org.opensaml.xmlsec.encryption.EncryptedKey samlEncryptedKey
                 = SAMLUtils.createEncryptedKey(getTestCertificate(), encryptedKey);
 
         marshallerFactory.getMarshaller(samlEncryptedKey).marshall(samlEncryptedKey);

@@ -38,8 +38,7 @@ import org.apache.ws.security.WSEncryptionPart;
 import org.apache.ws.security.components.crypto.Crypto;
 import org.apache.ws.security.message.WSSecEncrypt;
 import org.apache.ws.security.message.WSSecHeader;
-import org.opensaml.Configuration;
-import org.opensaml.xml.signature.KeyInfo;
+import org.opensaml.xmlsec.signature.KeyInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
