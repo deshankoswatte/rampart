@@ -1,6 +1,6 @@
 package org.apache.rampart;
 
-import org.apache.ws.security.WSSecurityEngineResult;
+import org.apache.wss4j.dom.engine.WSSecurityEngineResult;
 
 import java.util.List;
 
@@ -19,5 +19,5 @@ public interface ExtendedPolicyValidatorCallbackHandler extends PolicyValidatorC
     * @param results policy based ws-security results
     * @throws RampartException Rampart exception
     */
-   public abstract void validate(ValidatorData data, List<WSSecurityEngineResult> results) throws RampartException;
+  void validate(ValidatorData data, List<WSSecurityEngineResult> results) throws RampartException;
 }

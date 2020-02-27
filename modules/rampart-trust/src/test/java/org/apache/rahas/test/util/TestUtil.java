@@ -33,14 +33,14 @@ import org.apache.rahas.TrustException;
 import org.apache.rahas.TrustUtil;
 import org.apache.rahas.impl.util.CommonUtil;
 import org.apache.ws.secpolicy.Constants;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSSecurityEngineResult;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.components.crypto.CryptoFactory;
-import org.apache.ws.security.components.crypto.CryptoType;
-import org.apache.ws.security.handler.WSHandlerConstants;
-import org.apache.ws.security.handler.WSHandlerResult;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.crypto.CryptoFactory;
+import org.apache.wss4j.common.crypto.CryptoType;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.engine.WSSecurityEngineResult;
+import org.apache.wss4j.dom.handler.WSHandlerConstants;
+import org.apache.wss4j.dom.handler.WSHandlerResult;
 import org.apache.xml.security.utils.XMLUtils;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.w3c.dom.DOMConfiguration;
@@ -223,7 +223,7 @@ public class TestUtil {
 
         wsSecEngineResults.add(result);
 
-        WSHandlerResult handlerResult = new WSHandlerResult(null, wsSecEngineResults);
+        WSHandlerResult handlerResult = new WSHandlerResult(null, wsSecEngineResults, null);
 
         List<WSHandlerResult> handlerResultList = new ArrayList<WSHandlerResult>();
         handlerResultList.add(handlerResult);
@@ -322,7 +322,7 @@ public class TestUtil {
                 return envelope;
 
             } catch (FactoryConfigurationError e) {
-                throw new WSSecurityException(e.getMessage());
+                throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, e.getMessage());
             }
         } else {
             try {
@@ -333,7 +333,7 @@ public class TestUtil {
                 SOAPModelBuilder stAXSOAPModelBuilder = OMXMLBuilderFactory.createSOAPModelBuilder(bais, null);
                 return stAXSOAPModelBuilder.getSOAPEnvelope();
             } catch (Exception e) {
-                throw new WSSecurityException(e.getMessage());
+                throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, e, e.getMessage());
             }
         }
     }
@@ -437,8 +437,8 @@ public class TestUtil {
                 return factory.newDocumentBuilder().parse(bais);
             }
 		} catch (Exception e) {
-			throw new WSSecurityException(
-					"Error in converting SOAP Envelope to Document", e);
+			throw new WSSecurityException( WSSecurityException.ErrorCode.FAILURE, e,
+					"Error in converting SOAP Envelope to Document");
 		}
 	}
 }

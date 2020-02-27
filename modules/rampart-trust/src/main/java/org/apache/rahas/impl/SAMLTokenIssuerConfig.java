@@ -29,9 +29,9 @@ import org.apache.rahas.TrustException;
 import org.apache.rahas.TrustUtil;
 import org.apache.rahas.impl.util.CommonUtil;
 import org.apache.rahas.impl.util.SAMLCallbackHandler;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.components.crypto.CryptoFactory;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.crypto.CryptoFactory;
+import org.apache.wss4j.common.ext.WSSecurityException;
 
 import javax.xml.namespace.QName;
 import java.io.FileInputStream;
@@ -497,7 +497,7 @@ public class SAMLTokenIssuerConfig extends AbstractIssuerConfig {
             if (this.cryptoElement != null) {
                 // crypto props defined as elements
                 return CryptoFactory.getInstance(TrustUtil
-                        .toProperties(this.cryptoElement), classLoader);
+                        .toProperties(this.cryptoElement), classLoader, null);
             } else {
                 // crypto props defined in a properties file
                 return CryptoFactory.getInstance(this.cryptoPropertiesFile,

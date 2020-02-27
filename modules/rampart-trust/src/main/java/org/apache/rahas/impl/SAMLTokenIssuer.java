@@ -29,12 +29,11 @@ import org.apache.rahas.TokenIssuer;
 import org.apache.rahas.TrustException;
 import org.apache.rahas.TrustUtil;
 import org.apache.rahas.impl.util.*;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.WSUsernameTokenPrincipal;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.util.Loader;
-import org.apache.ws.security.util.XmlSchemaDateFormat;
 
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.principal.UsernameTokenPrincipal;
+import org.apache.wss4j.common.util.Loader;
 import org.joda.time.DateTime;
 import org.opensaml.saml.common.SAMLException;
 import org.opensaml.saml.saml1.core.Assertion;
@@ -53,9 +52,11 @@ import java.security.Principal;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Issuer to issue SAMl tokens
@@ -177,11 +178,13 @@ public class SAMLTokenIssuer implements TokenIssuer {
         }
 
         // Use GMT time in milliseconds
-        DateFormat zulu = new XmlSchemaDateFormat();
+        TimeZone timeZone = TimeZone.getTimeZone("UTC");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        dateFormat.setTimeZone(timeZone);
 
         // Add the Lifetime element
-        TrustUtil.createLifetimeElement(wstVersion, rstrElem, zulu
-                .format(creationTime.toDate()), zulu.format(expirationTime.toDate()));
+        TrustUtil.createLifetimeElement(wstVersion, rstrElem, dateFormat
+                .format(creationTime.toDate()), dateFormat.format(expirationTime.toDate()));
 
         // Create the RequestedSecurityToken element and add the SAML token
         // to it
@@ -227,7 +230,7 @@ public class SAMLTokenIssuer implements TokenIssuer {
         Principal principal = data.getPrincipal();
         Assertion assertion;
         // In the case where the principal is a UT
-        if (principal instanceof WSUsernameTokenPrincipal) {
+        if (principal instanceof UsernameTokenPrincipal) {
             NameIdentifier nameId = null;
             if (config.getCallbackHandler() != null) {
                 SAMLNameIdentifierCallback cb = new SAMLNameIdentifierCallback(data);

@@ -24,11 +24,11 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rampart.RampartConstants;
-import org.apache.ws.security.WSPasswordCallback;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.handler.RequestData;
-import org.apache.ws.security.message.token.UsernameToken;
-import org.apache.ws.security.validate.UsernameTokenValidator;
+import org.apache.wss4j.common.ext.WSPasswordCallback;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.dom.handler.RequestData;
+import org.apache.wss4j.dom.message.token.UsernameToken;
+import org.apache.wss4j.dom.validate.UsernameTokenValidator;
 
 /**
  * Overriding the default UsernameTokenValidator provided by WSS4J because the
@@ -49,23 +49,17 @@ public class RampartUsernameTokenValidator extends UsernameTokenValidator {
 		String pwType = usernameToken.getPasswordType();
 
 		// Provide the password to the user for validation
-		WSPasswordCallback pwCb = new WSPasswordCallback(user, password,
-				pwType, WSPasswordCallback.USERNAME_TOKEN, data);
+		WSPasswordCallback pwCb = new WSPasswordCallback(user, password, pwType,
+                WSPasswordCallback.USERNAME_TOKEN);
 		try {
 			data.getCallbackHandler().handle(new Callback[] { pwCb });
-		} catch (IOException e) {
+		} catch (IOException | UnsupportedCallbackException e) {
 			if (mlog.isDebugEnabled()) {
 				mlog.debug(e);
 			}
 			throw new WSSecurityException(
-					WSSecurityException.FAILED_AUTHENTICATION);
-		} catch (UnsupportedCallbackException e) {
-			if (mlog.isDebugEnabled()) {
-				mlog.debug(e);
-			}
-			throw new WSSecurityException(
-					WSSecurityException.FAILED_AUTHENTICATION);
+					WSSecurityException.ErrorCode.FAILED_AUTHENTICATION);
 		}
 
-	}
+    }
 }

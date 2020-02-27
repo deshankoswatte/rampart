@@ -29,7 +29,7 @@ public interface TokenValidator {
      * @return Response SOAPEnveloper
      * @throws TrustException
      */
-    public SOAPEnvelope validate(RahasData data) throws TrustException;
+    SOAPEnvelope validate(RahasData data) throws TrustException;
 
     /**
      * Set the configuration file of this TokenValidator.
@@ -39,7 +39,7 @@ public interface TokenValidator {
      * 
      * @param configFile
      */
-    public void setConfigurationFile(String configFile);
+    void setConfigurationFile(String configFile);
 
     /**
      * Set the configuration element of this TokenValidator.
@@ -50,7 +50,7 @@ public interface TokenValidator {
      * @param configElement
      *                <code>OMElement</code> representing the configuration
      */
-    public void setConfigurationElement(OMElement configElement);
+    void setConfigurationElement(OMElement configElement);
 
     /**
      * Set the name of the configuration parameter.
@@ -62,5 +62,5 @@ public interface TokenValidator {
      * @see org.apache.axis2.description.Parameter
      * @param configParamName
      */
-    public void setConfigurationParamName(String configParamName);
+    void setConfigurationParamName(String configParamName);
 }

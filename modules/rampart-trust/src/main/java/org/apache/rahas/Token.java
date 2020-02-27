@@ -22,11 +22,10 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Reader;
 import java.io.StringReader;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.Properties;
 
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -42,8 +41,7 @@ import org.apache.axiom.om.OMXMLParserWrapper;
 import org.apache.axiom.om.OMXMLStreamReaderConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.util.XmlSchemaDateFormat;
+import org.apache.wss4j.dom.WSConstants;
 
 /**
  * This represents a security token which can have either one of 4 states. <ul> <li>ISSUED</li> <li>EXPIRED</li>
@@ -171,17 +169,15 @@ public class Token implements Externalizable {
     private void processLifeTime(OMElement lifetimeElem)
         throws TrustException {
         try {
-            DateFormat zulu = new XmlSchemaDateFormat();
             OMElement createdElem =
                 lifetimeElem.getFirstChildWithName(new QName(WSConstants.WSU_NS, WSConstants.CREATED_LN));
-            this.created = zulu.parse(createdElem.getText());
+
+            this.created = DatatypeConverter.parseDateTime(createdElem.getText()).getTime();
 
             OMElement expiresElem =
                 lifetimeElem.getFirstChildWithName(new QName(WSConstants.WSU_NS, WSConstants.EXPIRES_LN));
-            this.expires = zulu.parse(expiresElem.getText());
+            this.expires = DatatypeConverter.parseDateTime(expiresElem.getText()).getTime();
         } catch (OMException e) {
-            throw new TrustException("lifeTimeProcessingError", new String[]{lifetimeElem.toString()}, e);
-        } catch (ParseException e) {
             throw new TrustException("lifeTimeProcessingError", new String[]{lifetimeElem.toString()}, e);
         }
     }

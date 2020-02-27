@@ -17,6 +17,7 @@
 package org.apache.rahas.impl.util;
 
 import junit.framework.Assert;
+import net.shibboleth.utilities.java.support.codec.Base64Support;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.commons.logging.Log;
@@ -25,10 +26,9 @@ import org.apache.rahas.TrustException;
 import org.apache.rahas.TrustUtil;
 import org.apache.rahas.test.util.AbstractTestCase;
 import org.apache.rahas.test.util.TestUtil;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.message.WSSecEncryptedKey;
-import org.apache.ws.security.util.Base64;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.dom.message.WSSecEncryptedKey;
 import org.joda.time.DateTime;
 import org.opensaml.saml.saml1.core.Assertion;
 import org.opensaml.saml.saml1.core.Attribute;
@@ -225,7 +225,7 @@ public class SAMLUtilsTest extends AbstractTestCase {
 
         // Check certificates are equal
 
-        String base64Cert = Base64.encode(getTestCertificate().getEncoded());
+        String base64Cert = Base64Support.encode(getTestCertificate().getEncoded(), Base64Support.UNCHUNKED);
         Assert.assertEquals(base64Cert, x509Data.getDOM().getFirstChild().getTextContent());
 
        /* try {

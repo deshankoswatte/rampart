@@ -16,14 +16,14 @@
 
 package org.apache.rahas.impl.util;
 
+import net.shibboleth.utilities.java.support.codec.Base64Support;
 import org.apache.axiom.util.UIDGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.RahasConstants;
 import org.apache.rahas.TrustException;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.message.WSSecEncryptedKey;
-import org.apache.ws.security.util.Base64;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.dom.message.WSSecEncryptedKey;
 import org.apache.xml.security.signature.XMLSignature;
 import org.apache.xml.security.utils.EncryptionConstants;
 import org.joda.time.DateTime;
@@ -606,7 +606,7 @@ public class SAMLUtils {
         keyInfo.getXMLObjects().add(securityTokenReference);
 
         CipherValue cipherValue = (CipherValue)CommonUtil.buildXMLObject(CipherValue.DEFAULT_ELEMENT_NAME);
-        cipherValue.setValue(Base64.encode(wsSecEncryptedKey.getEncryptedEphemeralKey()));
+        cipherValue.setValue(Base64Support.encode(wsSecEncryptedKey.getEncryptedEphemeralKey(), Base64Support.UNCHUNKED));
 
         CipherData cipherData = (CipherData)CommonUtil.buildXMLObject(CipherData.DEFAULT_ELEMENT_NAME);
         cipherData.setCipherValue(cipherValue);
@@ -641,7 +641,7 @@ public class SAMLUtils {
         }
         byte[] data = sha.digest();
 
-        return Base64.encode(data);
+        return Base64Support.encode(data, Base64Support.UNCHUNKED);
     }
 
 }

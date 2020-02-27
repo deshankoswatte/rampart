@@ -21,8 +21,8 @@ import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.rampart.RampartException;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSSecurityException;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.dom.WSConstants;
 import org.jaxen.JaxenException;
 import org.jaxen.SimpleNamespaceContext;
 import org.jaxen.XPath;
@@ -117,7 +117,7 @@ public class MessageOptimizer {
 			return xp.selectNodes(elem);
 
 		} catch (JaxenException e) {
-			throw new WSSecurityException(e.getMessage(), e);
+			throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, e, e.getMessage());
 		}
 
 	}

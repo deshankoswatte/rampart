@@ -35,20 +35,20 @@ public interface UniqueMessageAttributeCache {
      * Sets the maximum life time of a message id.
      * @param maxTime Maximum life time in seconds.
      */
-    public void setMaximumLifeTimeOfAnAttribute(int maxTime);
+    void setMaximumLifeTimeOfAnAttribute(int maxTime);
 
      /**
      * Gets the maximum life time of a message id.
      * @return Gets message id life time in seconds.
      */
-    public int getMaximumLifeTimeOfAnAttribute();
+     int getMaximumLifeTimeOfAnAttribute();
 
     /**
      * Add value to a cache. Value can be sequence or nonce value.
      * @param id - Nonce value or sequence number.
      * @param userName - User name parameter value of the UserNameToken.
      */
-    public void addToCache(String id, String userName);
+    void addToCache(String id, String userName);
 
     /**
      * Checks whether value already exists in the cache for a given user name. 
@@ -56,10 +56,10 @@ public interface UniqueMessageAttributeCache {
      * @param userName - User name parameter value of the UserName token.
      * @return Returns true if nonce or sequence id is already received for given user name. Else false.
      */
-    public boolean valueExistsInCache(String id, String userName);
+    boolean valueExistsInCache(String id, String userName);
 
     /**
      * Clears all recorded nonce values/sequence numbers.
      */
-    public void clearCache();
+    void clearCache();
 }

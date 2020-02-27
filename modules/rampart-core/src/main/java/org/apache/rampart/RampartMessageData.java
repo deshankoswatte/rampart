@@ -45,19 +45,20 @@ import org.apache.rampart.util.RampartUtil;
 import org.apache.ws.secpolicy.SP11Constants;
 import org.apache.ws.secpolicy.SP12Constants;
 import org.apache.ws.secpolicy.WSSPolicyException;
-import org.apache.ws.security.SOAPConstants;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSSConfig;
-import org.apache.ws.security.WSSecurityEngine;
-import org.apache.ws.security.WSSecurityEngineResult;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.conversation.ConversationConstants;
-import org.apache.ws.security.handler.WSHandlerConstants;
-import org.apache.ws.security.handler.WSHandlerResult;
-import org.apache.ws.security.message.WSSecHeader;
-import org.apache.ws.security.message.token.SecurityContextToken;
-import org.apache.ws.security.util.Loader;
-import org.apache.ws.security.util.WSSecurityUtil;
+import org.apache.wss4j.common.derivedKey.ConversationConstants;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.util.Loader;
+import org.apache.wss4j.dom.SOAPConstants;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.engine.WSSConfig;
+import org.apache.wss4j.dom.engine.WSSecurityEngine;
+import org.apache.wss4j.dom.engine.WSSecurityEngineResult;
+import org.apache.wss4j.dom.handler.RequestData;
+import org.apache.wss4j.dom.handler.WSHandlerConstants;
+import org.apache.wss4j.dom.handler.WSHandlerResult;
+import org.apache.wss4j.dom.message.WSSecHeader;
+import org.apache.wss4j.dom.message.token.SecurityContextToken;
+import org.apache.wss4j.dom.util.WSSecurityUtil;
 import org.w3c.dom.Document;
 
 import java.util.ArrayList;
@@ -179,7 +180,7 @@ public class RampartMessageData {
             this.config = WSSConfig.getNewInstance();
             
             //Update the UsernameToken validator
-            this.config.setValidator(WSSecurityEngine.USERNAME_TOKEN, RampartUsernameTokenValidator.class);
+            this.config.setValidator(WSConstants.USERNAME_TOKEN, RampartUsernameTokenValidator.class);
             
             // First obtain the axis service as we have to do a null check, there can be situations 
             // where Axis Service is null
@@ -373,8 +374,7 @@ public class RampartMessageData {
             } 
             
             if(this.sender && this.policyData != null) {
-                this.secHeader = new WSSecHeader();
-                secHeader.insertSecurityHeader(this.document);
+                this.secHeader = new WSSecHeader(this.document);
             }
             
         } catch (AxisFault e) {

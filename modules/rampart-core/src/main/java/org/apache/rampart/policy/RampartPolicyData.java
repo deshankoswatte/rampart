@@ -30,7 +30,7 @@ import org.apache.ws.secpolicy.model.Token;
 import org.apache.ws.secpolicy.model.Trust10;
 import org.apache.ws.secpolicy.model.Wss10;
 import org.apache.ws.secpolicy.model.Wss11;
-import org.apache.ws.security.WSEncryptionPart;
+import org.apache.wss4j.common.WSEncryptionPart;
 
 import java.util.ArrayList;
 import java.util.HashMap;

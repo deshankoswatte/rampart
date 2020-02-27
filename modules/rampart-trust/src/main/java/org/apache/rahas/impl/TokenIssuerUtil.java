@@ -26,13 +26,12 @@ import org.apache.rahas.Token;
 import org.apache.rahas.TrustException;
 import org.apache.rahas.TrustUtil;
 import org.apache.rahas.impl.util.CommonUtil;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.conversation.ConversationException;
-import org.apache.ws.security.conversation.dkalgo.P_SHA1;
-import org.apache.ws.security.message.WSSecEncryptedKey;
-import org.apache.ws.security.util.WSSecurityUtil;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.derivedKey.P_SHA1;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.message.WSSecEncryptedKey;
+import org.apache.wss4j.dom.util.WSSecurityUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -74,8 +73,6 @@ public class TokenIssuerUtil {
             }
         } catch (WSSecurityException e) {
             throw new TrustException("errorCreatingSymmKey", e);
-        } catch (ConversationException e) {
-            throw new TrustException("errorCreatingSymmKey", e);
         }
     }
 
@@ -106,7 +103,7 @@ public class TokenIssuerUtil {
             compKeyElem.setText(data.getWstNs() + RahasConstants.COMPUTED_KEY_PSHA1);
         } else {
             if (TokenIssuerUtil.ENCRYPTED_KEY.equals(config.proofKeyType)) {
-                WSSecEncryptedKey encrKeyBuilder = new WSSecEncryptedKey();
+                WSSecEncryptedKey encrKeyBuilder = new WSSecEncryptedKey(doc);
                 Crypto crypto;
 
                 ClassLoader classLoader = data.getInMessageContext().getAxisService().getClassLoader();
@@ -120,7 +117,7 @@ public class TokenIssuerUtil {
                 encrKeyBuilder.setKeyIdentifierType(WSConstants.THUMBPRINT_IDENTIFIER);
                 try {
                     encrKeyBuilder.setUseThisCert(data.getClientCert());
-                    encrKeyBuilder.prepare(doc, crypto);
+                    encrKeyBuilder.prepare(crypto);
                 } catch (WSSecurityException e) {
                     throw new TrustException("errorInBuildingTheEncryptedKeyForPrincipal",
                                              new String[]{data.

@@ -58,23 +58,25 @@ import org.apache.rampart.policy.model.CryptoConfig;
 import org.apache.rampart.policy.model.RampartConfig;
 import org.apache.ws.secpolicy.SPConstants;
 import org.apache.ws.secpolicy.model.*;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSEncryptionPart;
-import org.apache.ws.security.WSPasswordCallback;
-import org.apache.ws.security.WSSConfig;
-import org.apache.ws.security.WSSecurityEngineResult;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.WSUsernameTokenPrincipal;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.components.crypto.CryptoFactory;
-import org.apache.ws.security.conversation.ConversationConstants;
-import org.apache.ws.security.conversation.ConversationException;
-import org.apache.ws.security.handler.WSHandlerConstants;
-import org.apache.ws.security.handler.WSHandlerResult;
-import org.apache.ws.security.message.WSSecBase;
-import org.apache.ws.security.message.WSSecEncryptedKey;
-import org.apache.ws.security.util.Loader;
-import org.apache.ws.security.util.WSSecurityUtil;
+import org.apache.wss4j.common.WSEncryptionPart;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.crypto.CryptoFactory;
+import org.apache.wss4j.common.derivedKey.ConversationConstants;
+import org.apache.wss4j.common.ext.WSPasswordCallback;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.principal.WSUsernameTokenPrincipalImpl;
+import org.apache.wss4j.common.util.Loader;
+import org.apache.wss4j.common.util.XMLUtils;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.engine.WSSConfig;
+import org.apache.wss4j.dom.engine.WSSecurityEngineResult;
+import org.apache.wss4j.dom.handler.WSHandlerConstants;
+import org.apache.wss4j.dom.handler.WSHandlerResult;
+import org.apache.wss4j.dom.message.WSSecBase;
+import org.apache.wss4j.dom.message.WSSecEncryptedKey;
+import org.apache.wss4j.dom.message.WSSecTimestamp;
+import org.apache.wss4j.dom.util.WSSecurityUtil;
+import org.apache.wss4j.stax.ext.WSSSecurityProperties;
 import org.apache.xml.security.utils.Constants;
 import org.jaxen.JaxenException;
 import org.jaxen.XPath;
@@ -250,8 +252,8 @@ public class RampartUtil {
      * name.
      */
     public static WSPasswordCallback performCallback(CallbackHandler cbHandler,
-                                               String username,
-                                               int doAction)
+                                                     String username,
+                                                     int doAction)
             throws RampartException {
 
         WSPasswordCallback pwCb;
@@ -344,7 +346,7 @@ public class RampartUtil {
     private static Crypto createCrypto(Properties properties, ClassLoader classLoader) throws RampartException {
 
         try {
-            return CryptoFactory.getInstance(properties, classLoader);
+            return CryptoFactory.getInstance(properties, classLoader, null);
         } catch (WSSecurityException e) {
             log.error("Error loading crypto properties.", e);
             throw new RampartException("cannotCrateCryptoInstance", e);
@@ -538,8 +540,6 @@ public class RampartUtil {
             
             return rstTempl;
         } catch (TrustException e) {
-            throw new RampartException("errorCreatingRSTTemplateForSCT", e);
-        } catch (ConversationException e) {
             throw new RampartException("errorCreatingRSTTemplateForSCT", e);
         }
     }
@@ -841,7 +841,7 @@ public class RampartUtil {
     
     public static Element appendChildToSecHeader(RampartMessageData rmd,
             Element elem) {
-        Element secHeaderElem = rmd.getSecHeader().getSecurityHeader();
+        Element secHeaderElem = rmd.getSecHeader().getSecurityHeaderElement();
         Node node = adoptNode(secHeaderElem.getOwnerDocument(), elem);
         return (Element)secHeaderElem.appendChild(node);
     }
@@ -855,7 +855,7 @@ public class RampartUtil {
 
                 if (child.getParentNode() == null
                         && !child.getLocalName().equals("UsernameToken")) {
-                    rmd.getSecHeader().getSecurityHeader().appendChild(child);
+                    rmd.getSecHeader().getSecurityHeaderElement().appendChild(child);
                 }
                 ((OMElement) child).insertSiblingAfter((OMElement) sibling);
                 return sibling;
@@ -1263,7 +1263,7 @@ public class RampartUtil {
             }
         } catch (NoSuchAlgorithmException e) {
             throw new WSSecurityException(
-                    WSSecurityException.UNSUPPORTED_ALGORITHM, null, null, e);
+                    WSSecurityException.ErrorCode.UNSUPPORTED_ALGORITHM, e);
         }
         return keyGen;
     }
@@ -1352,7 +1352,7 @@ public class RampartUtil {
      * the WSS11 and WSS10 assertions
      */
     
-    public static void setKeyIdentifierType(RampartMessageData rmd, WSSecBase secBase,org.apache.ws.secpolicy.model.Token token) {
+    public static void setKeyIdentifierType(RampartMessageData rmd, WSSecBase secBase, org.apache.ws.secpolicy.model.Token token) {
 
         // Use a reference rather than the binary security token if: the policy never allows the token to be
         // included; or this is the recipient and the token should only be included in requests; or this is
@@ -1447,7 +1447,7 @@ public class RampartUtil {
             for (WSSecurityEngineResult wsSecEngineResult : wsSecEngineResults) {
                 Integer actInt = (Integer) wsSecEngineResult.get(WSSecurityEngineResult.TAG_ACTION);
                 if (actInt == WSConstants.UT) {
-                    WSUsernameTokenPrincipal principal = (WSUsernameTokenPrincipal) wsSecEngineResult.
+                    WSUsernameTokenPrincipalImpl principal = (WSUsernameTokenPrincipalImpl) wsSecEngineResult.
                             get(WSSecurityEngineResult.TAG_PRINCIPAL);
                     return principal.getName();
                 }
@@ -1543,7 +1543,7 @@ public class RampartUtil {
     private static Element prependSecHeader(RampartMessageData rmd, Element elem) {
         Element retElem = null;
 
-        Element secHeaderElem = rmd.getSecHeader().getSecurityHeader();
+        Element secHeaderElem = rmd.getSecHeader().getSecurityHeaderElement();
         Node node = secHeaderElem.getOwnerDocument().importNode(
                 elem, true);
         Element firstElem = (Element) secHeaderElem.getFirstChild();
@@ -1663,7 +1663,7 @@ public class RampartUtil {
                     String encDataID = encryptedPart.getEncId();
 
                     // TODO Do we need to go through the whole tree to find element by id ? Verify
-                    Element encDataElem = WSSecurityUtil.findElementById(doc.getDocumentElement(), encDataID, false);
+                    Element encDataElem = XMLUtils.findElementById(doc.getDocumentElement(), encDataID, false);
 
                     if (encDataElem != null) {
                         Element encHeader = (Element) encDataElem.getParentNode();
@@ -1727,19 +1727,26 @@ public class RampartUtil {
      * @return WSSConfig object with the latest settings.    
      */
     
-    public static WSSConfig getWSSConfigInstance() {
-        
-        WSSConfig defaultWssConfig = WSSConfig.getNewInstance();
-        WSSConfig wssConfig = WSSConfig.getNewInstance();
-        
-        wssConfig.setEnableSignatureConfirmation(defaultWssConfig.isEnableSignatureConfirmation());
-        wssConfig.setTimeStampStrict(defaultWssConfig.isTimeStampStrict());
-        wssConfig.setWsiBSPCompliant(defaultWssConfig.isWsiBSPCompliant());
-        wssConfig.setPrecisionInMilliSeconds(defaultWssConfig.isPrecisionInMilliSeconds());
-        
-        return  wssConfig;
-       
-    }
+//    public static WSSConfig getWSSConfigInstance() {
+//
+//        WSSConfig defaultWssConfig = WSSConfig.getNewInstance();
+//        WSSConfig wssConfig = WSSConfig.getNewInstance();
+//        WSSecTimestamp timestamp = new WSSecTimestamp();
+//        timestamp.setPrecisionInMilliSeconds(false);
+//
+//        wssConfig.setEnableSignatureConfirmation(defaultWssConfig.isEnableSignatureConfirmation());
+//        wssConfig.setTimeStampStrict(defaultWssConfig.isTimeStampStrict());
+//        wssConfig.setWsiBSPCompliant(defaultWssConfig.isWsiBSPCompliant());
+//        wssConfig.setPrecisionInMilliSeconds(defaultWssConfig.isPrecisionInMilliSeconds());
+//
+//        WSSSecurityProperties properties = new WSSSecurityProperties();
+//        properties.setEnableSignatureConfirmationVerification(properties.isEnableSignatureConfirmationVerification());
+//        properties.setStrictTimestampCheck(properties.isStrictTimestampCheck());
+//        properties.setDisableBSPEnforcement(properties.isDisableBSPEnforcement());
+//
+//        return  wssConfig;
+//
+//    }
 
     public static void validateTransport(RampartMessageData rmd) throws RampartException {
 

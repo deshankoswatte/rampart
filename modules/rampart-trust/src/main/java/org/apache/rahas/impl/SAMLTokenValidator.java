@@ -20,8 +20,8 @@ import org.apache.rahas.TrustException;
 import org.apache.rahas.TrustUtil;
 import org.apache.rahas.impl.util.CommonUtil;
 import org.apache.rahas.impl.util.SAMLUtils;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.components.crypto.CryptoFactory;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.crypto.CryptoFactory;
 import org.opensaml.saml.saml1.core.Assertion;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
@@ -177,7 +177,7 @@ public class SAMLTokenValidator implements TokenValidator {
                 // elements
                 crypto = CryptoFactory.getInstance(TrustUtil
                         .toProperties(config.cryptoElement), inMsgCtx
-                        .getAxisService().getClassLoader());
+                        .getAxisService().getClassLoader(), null);
             } else { // crypto props defined in a properties file
                 crypto = CryptoFactory.getInstance(config.cryptoPropertiesFile,
                         inMsgCtx.getAxisService().getClassLoader());

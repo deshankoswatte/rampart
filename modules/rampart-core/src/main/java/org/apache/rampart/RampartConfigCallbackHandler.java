@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.rampart;
 
 import org.apache.rampart.policy.model.RampartConfig;
@@ -32,6 +33,6 @@ import org.apache.rampart.policy.model.RampartConfig;
 
 public interface RampartConfigCallbackHandler {
     
-    public void update(RampartConfig rampartConfig);        
+    void update(RampartConfig rampartConfig);
     
 }

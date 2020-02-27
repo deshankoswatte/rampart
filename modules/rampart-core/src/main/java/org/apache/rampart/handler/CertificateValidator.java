@@ -16,9 +16,10 @@
 
 package org.apache.rampart.handler;
 
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.validate.SignatureTrustValidator;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.dom.handler.RequestData;
+import org.apache.wss4j.dom.validate.SignatureTrustValidator;
 
 import java.security.cert.X509Certificate;
 
@@ -27,19 +28,15 @@ import java.security.cert.X509Certificate;
  */
 public class CertificateValidator extends SignatureTrustValidator {
 
-    CertificateValidator() {
-
-    }
-
     /**
      * Checks the validity of the given certificate. For more info see SignatureTrustValidator.verifyTrustInCert.
      * @param certificate Certificate to be validated.
      * @param signatureCrypto Signature crypto instance.
-     * @return true if certificate used in signature is valid. False if it is not valid.
+     * @param data Request data.
      * @throws WSSecurityException If an error occurred while trying to access Crypto and Certificate properties.
      */
-    boolean validateCertificate(X509Certificate certificate, Crypto signatureCrypto) throws WSSecurityException {
-        return verifyTrustInCert(certificate, signatureCrypto, false);
+    void validateCertificate(X509Certificate certificate, Crypto signatureCrypto, RequestData data) throws WSSecurityException {
+        verifyTrustInCerts(new X509Certificate[]{certificate}, signatureCrypto, data, false);
     }
 
 }

@@ -23,14 +23,14 @@ import org.apache.rahas.TrustUtil;
 import org.apache.rahas.RahasConstants;
 import org.apache.rahas.TokenStorage;
 import org.apache.rahas.Token;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.message.token.Reference;
-import org.apache.ws.security.message.token.SecurityTokenReference;
 import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.context.MessageContext;
+import org.apache.wss4j.common.token.Reference;
+import org.apache.wss4j.common.token.SecurityTokenReference;
+import org.apache.wss4j.dom.WSConstants;
 
 import javax.xml.namespace.QName;
 

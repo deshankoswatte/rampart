@@ -16,6 +16,7 @@
 
 package org.apache.rahas.impl.util;
 
+import net.shibboleth.utilities.java.support.codec.Base64Support;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.dom.DOMMetaFactory;
@@ -27,15 +28,18 @@ import org.apache.rahas.RahasData;
 import org.apache.rahas.TrustException;
 import org.apache.rahas.impl.SAMLTokenIssuerConfig;
 import org.apache.rahas.impl.TokenIssuerUtil;
-import org.apache.ws.security.*;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.components.crypto.CryptoFactory;
-import org.apache.ws.security.components.crypto.CryptoType;
-import org.apache.ws.security.handler.RequestData;
-import org.apache.ws.security.message.WSSecEncryptedKey;
-import org.apache.ws.security.processor.EncryptedKeyProcessor;
-import org.apache.ws.security.util.Base64;
-import org.apache.ws.security.util.Loader;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.crypto.CryptoFactory;
+import org.apache.wss4j.common.crypto.CryptoType;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.util.Loader;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.WSDocInfo;
+import org.apache.wss4j.dom.engine.WSSConfig;
+import org.apache.wss4j.dom.engine.WSSecurityEngineResult;
+import org.apache.wss4j.dom.handler.RequestData;
+import org.apache.wss4j.dom.message.WSSecEncryptedKey;
+import org.apache.wss4j.dom.processor.EncryptedKeyProcessor;
 import org.apache.xml.security.utils.EncryptionConstants;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilder;
@@ -153,7 +157,7 @@ public class CommonUtil {
 
         List<WSSecurityEngineResult> resultList;
 
-        resultList = encryptedKeyProcessor.handleToken((Element) encryptedKeyElement, requestData, docInfo);
+        resultList = encryptedKeyProcessor.handleToken((Element) encryptedKeyElement, requestData);
 
 
         WSSecurityEngineResult wsSecurityEngineResult = resultList.get(0);
@@ -171,7 +175,7 @@ public class CommonUtil {
      */
     public static Crypto getCrypto(Properties properties, ClassLoader classLoader) throws TrustException {
         try {
-            return CryptoFactory.getInstance(properties, classLoader);
+            return CryptoFactory.getInstance(properties, classLoader, null);
         } catch (WSSecurityException e) {
             log.error("An error occurred while loading crypto properties", e);
             throw new TrustException("errorLoadingCryptoProperties", e);
@@ -365,7 +369,7 @@ public class CommonUtil {
                                                                        Crypto crypto) throws WSSecurityException,
             TrustException {
         // Create the encrypted key
-        WSSecEncryptedKey encryptedKeyBuilder = new WSSecEncryptedKey();
+        WSSecEncryptedKey encryptedKeyBuilder = new WSSecEncryptedKey(doc);
 
         // Use thumbprint id
         encryptedKeyBuilder
@@ -381,7 +385,7 @@ public class CommonUtil {
                 .setKeyEncAlgo(EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSA15);
 
         // Build
-        encryptedKeyBuilder.prepare(doc, crypto);
+        encryptedKeyBuilder.prepare(crypto);
 
         return encryptedKeyBuilder;
     }
@@ -418,7 +422,7 @@ public class CommonUtil {
             log.error("An error occurred while encoding certificate.", e);
             throw new TrustException("An error occurred while encoding certificate.", e);
         }
-        String base64Cert = Base64.encode(clientCertBytes);
+        String base64Cert = Base64Support.encode(clientCertBytes, Base64Support.UNCHUNKED);
 
         org.opensaml.xmlsec.signature.X509Certificate x509Certificate
                 = (org.opensaml.xmlsec.signature.X509Certificate)CommonUtil.buildXMLObject

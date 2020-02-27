@@ -24,8 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.*;
 import org.apache.rahas.impl.util.*;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.util.XmlSchemaDateFormat;
+import org.apache.wss4j.common.crypto.Crypto;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
@@ -64,9 +63,11 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * WS-Trust based SAML2 token issuer. This issuer will generate request security token responses with SAML2
@@ -216,12 +217,14 @@ public class SAML2TokenIssuer implements TokenIssuer {
         }
 
         // Use GMT time in milliseconds
-        DateFormat xmlSchemaDateFormat = new XmlSchemaDateFormat();
+        TimeZone timeZone = TimeZone.getTimeZone("UTC");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        dateFormat.setTimeZone(timeZone);
 
         // Add the Lifetime element
-        TrustUtil.createLifetimeElement(wstVersion, requestSecurityTokenResponse, xmlSchemaDateFormat
+        TrustUtil.createLifetimeElement(wstVersion, requestSecurityTokenResponse, dateFormat
                 .format(rahasData.getAssertionCreatedDate()),
-                xmlSchemaDateFormat.format(rahasData.getAssertionExpiringDate()));
+                dateFormat.format(rahasData.getAssertionExpiringDate()));
 
         // Create the RequestedSecurityToken element and add the SAML token
         // to it

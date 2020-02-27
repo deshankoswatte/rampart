@@ -31,17 +31,16 @@ import org.apache.ws.secpolicy.model.AlgorithmSuite;
 import org.apache.ws.secpolicy.model.SupportingToken;
 import org.apache.ws.secpolicy.model.Token;
 import org.apache.ws.secpolicy.model.X509Token;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSEncryptionPart;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.conversation.ConversationException;
-import org.apache.ws.security.handler.WSHandlerConstants;
-import org.apache.ws.security.handler.WSHandlerResult;
-import org.apache.ws.security.message.WSSecDKEncrypt;
-import org.apache.ws.security.message.WSSecDKSign;
-import org.apache.ws.security.message.WSSecEncrypt;
-import org.apache.ws.security.message.WSSecEncryptedKey;
-import org.apache.ws.security.message.WSSecSignature;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.common.WSEncryptionPart;
+import org.apache.wss4j.dom.handler.WSHandlerConstants;
+import org.apache.wss4j.dom.handler.WSHandlerResult;
+import org.apache.wss4j.dom.message.WSSecDKEncrypt;
+import org.apache.wss4j.dom.message.WSSecDKSign;
+import org.apache.wss4j.dom.message.WSSecEncrypt;
+import org.apache.wss4j.dom.message.WSSecEncryptedKey;
+import org.apache.wss4j.dom.message.WSSecSignature;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -142,12 +141,12 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
                 try {
                     this.setupEncryptedKey(rmd, encryptionToken);
                     // Create the DK encryption builder
-                    dkEncr = new WSSecDKEncrypt();
-                    dkEncr.setParts(encrParts);
+                    dkEncr = new WSSecDKEncrypt(doc);
+                    dkEncr.getParts().addAll(encrParts);
                     dkEncr.setExternalKey(this.encryptedKeyValue, 
                             this.encryptedKeyId);
                     dkEncr.setDerivedKeyLength(rpd.getAlgorithmSuite().getEncryptionDerivedKeyLength()/8);
-                    dkEncr.prepare(doc);
+                    dkEncr.prepare();
 
                     // Get and add the DKT element
                     this.encrDKTElement = dkEncr.getdktElement();
@@ -157,20 +156,17 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
 
                 } catch (WSSecurityException e) {
                     throw new RampartException("errorCreatingEncryptedKey", e);
-                } catch (ConversationException e) {
-                    throw new RampartException("errorInDKEncr", e);
                 }
             } else {
                 try {
-                    encr = new WSSecEncrypt();
-                    encr.setParts(encrParts);
+                    encr = new WSSecEncrypt(doc);
+                    encr.getParts().addAll(encrParts);
                     encr.setWsConfig(rmd.getConfig());
-                    encr.setDocument(doc);
                     RampartUtil.setEncryptionUser(rmd, encr);
                     encr.setSymmetricEncAlgorithm(rpd.getAlgorithmSuite().getEncryption());
                     RampartUtil.setKeyIdentifierType(rmd, encr, encryptionToken);
                     encr.setKeyEncAlgo(rpd.getAlgorithmSuite().getAsymmetricKeyWrap());
-                    encr.prepare(doc, RampartUtil.getEncryptionCrypto(config, rmd.getCustomClassLoader()));
+                    encr.prepare(RampartUtil.getEncryptionCrypto(config, rmd.getCustomClassLoader()));
 
                     Element bstElem = encr.getBinarySecurityTokenElement();
                     if (bstElem != null) {
@@ -181,7 +177,7 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
                     this.encrTokenElement = RampartUtil.appendChildToSecHeader(rmd,
                             encrTokenElement);
 
-                    refList = encr.encryptForExternalRef(null, encrParts);
+                    refList = encr.encryptForRef(null, encrParts);
 
                 } catch (WSSecurityException e) {
                     throw new RampartException("errorInEncryption", e);
@@ -320,7 +316,7 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
                 } else {
                     try {
                         // Encrypt, get hold of the ref list and add it
-                        secondRefList = encr.encryptForExternalRef(null,
+                        secondRefList = encr.encryptForRef(null,
                                 secondEncrParts);
 
                         // Insert the ref list after the encrypted key elem
@@ -490,7 +486,7 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
             if(encrToken.isDerivedKeys()) {
                 
                 try {
-                    WSSecDKEncrypt dkEncr = new WSSecDKEncrypt();
+                    WSSecDKEncrypt dkEncr = new WSSecDKEncrypt(doc);
                     
                     if(this.encrKey == null) {
                         this.setupEncryptedKey(rmd, encrToken);
@@ -501,7 +497,7 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
                             + WSConstants.ENC_KEY_VALUE_TYPE);
                     dkEncr.setSymmetricEncAlgorithm(algorithmSuite.getEncryption());
                     dkEncr.setDerivedKeyLength(algorithmSuite.getEncryptionDerivedKeyLength()/8);
-                    dkEncr.prepare(doc);
+                    dkEncr.prepare();
                     
                     
                     if(this.encrTokenElement != null) {
@@ -520,23 +516,19 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
                                                     
                 } catch (WSSecurityException e) {
                     throw new RampartException("errorInDKEncr", e);
-                } catch (ConversationException e) {
-                    throw new RampartException("errorInDKEncr", e);
                 }
             } else {
                 try {
                     
-                    WSSecEncrypt encr = new WSSecEncrypt();
+                    WSSecEncrypt encr = new WSSecEncrypt(doc);
                     
                     RampartUtil.setKeyIdentifierType(rmd, encr, encrToken);
                     
                     encr.setWsConfig(rmd.getConfig());
-                    
-                    encr.setDocument(doc);
                     RampartUtil.setEncryptionUser(rmd, encr);
                     encr.setSymmetricEncAlgorithm(algorithmSuite.getEncryption());
                     encr.setKeyEncAlgo(algorithmSuite.getAsymmetricKeyWrap());
-                    encr.prepare(doc, RampartUtil.getEncryptionCrypto(rpd
+                    encr.prepare(RampartUtil.getEncryptionCrypto(rpd
                             .getRampartConfig(), rmd.getCustomClassLoader()));
                     
                     if(this.timestampElement != null){
@@ -556,7 +548,7 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
                     Element encryptedKeyElement = encr.getEncryptedKeyElement();
                                        
                     //Encrypt, get hold of the ref list and add it
-                    refList = encr.encryptForInternalRef(null, encrParts);
+                    refList = encr.encryptForRef(null, encrParts);
                     
                     //Add internal refs
                     encryptedKeyElement.appendChild(refList);
@@ -630,7 +622,7 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
         	supportingSig.setDigestAlgo(rmd.getPolicyData().getAlgorithmSuite().getDigest());
 
             List<Reference> referenceList
-                    = supportingSig.addReferencesToSign(supportingSigParts, rmd.getSecHeader());
+                    = supportingSig.addReferencesToSign(supportingSigParts);
 
             /**
              * Before migration it was - this.setInsertionLocation(RampartUtil.insertSiblingAfter(rmd, this
@@ -683,7 +675,7 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
                 setupEncryptedKey(rmd, sigToken);
             }
             
-            WSSecDKSign dkSign = new WSSecDKSign();
+            WSSecDKSign dkSign = new WSSecDKSign(doc);
 
             dkSign.setExternalKey(this.encryptedKeyValue, this.encryptedKeyId);
 
@@ -695,16 +687,14 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
             dkSign.setCustomValueType(WSConstants.SOAPMESSAGE_NS11 + "#"
                     + WSConstants.ENC_KEY_VALUE_TYPE);
             try {
-                dkSign.prepare(doc, rmd.getSecHeader());
+                dkSign.prepare();
 
                 if (rpd.isTokenProtection()) {
                     sigParts.add(new WSEncryptionPart(encrKey.getId()));
                 }
 
-                dkSign.setParts(sigParts);
-
                 List<Reference> referenceList
-                        = dkSign.addReferencesToSign(sigParts, rmd.getSecHeader());
+                        = dkSign.addReferencesToSign(sigParts);
 
                  /**
                  * Add <wsc:DerivedKeyToken>..</wsc:DerivedKeyToken> to security
@@ -752,8 +742,6 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
                 signatureElement = dkSign.getSignatureElement();
             } catch (WSSecurityException e) {
                 throw new RampartException("errorInDerivedKeyTokenSignature", e);
-            } catch (ConversationException e) {
-                throw new RampartException("errorInDerivedKeyTokenSignature", e);
             }
 
         } else {
@@ -774,7 +762,7 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
             	sig.setDigestAlgo(rpd.getAlgorithmSuite().getDigest());
 
                 List<Reference> referenceList
-                        = sig.addReferencesToSign(sigParts, rmd.getSecHeader());
+                        = sig.addReferencesToSign(sigParts);
 
                 // Do signature
                 if (this.refList == null) {
@@ -817,17 +805,16 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
                 return;
             }
 
-            WSSecEncrypt encr = new WSSecEncrypt();
+            WSSecEncrypt encr = new WSSecEncrypt(doc);
 
             RampartUtil.setKeyIdentifierType(rmd, encr, encrToken);
 
             encr.setWsConfig(rmd.getConfig());
 
-            encr.setDocument(doc);
             RampartUtil.setEncryptionUser(rmd, encr, ((X509Token) encrToken).getEncryptionUser());
             encr.setSymmetricEncAlgorithm(rpd.getAlgorithmSuite().getEncryption());
             encr.setKeyEncAlgo(rpd.getAlgorithmSuite().getAsymmetricKeyWrap());
-            encr.prepare(doc, RampartUtil.getEncryptionCrypto(rpd.getRampartConfig(), rmd
+            encr.prepare(RampartUtil.getEncryptionCrypto(rpd.getRampartConfig(), rmd
                     .getCustomClassLoader()));
 
             if (this.timestampElement != null) {
@@ -844,7 +831,7 @@ public class AsymmetricBindingBuilder extends BindingBuilder {
             Element encryptedKeyElement = encr.getEncryptedKeyElement();
 
             // Encrypt, get hold of the ref list and add it
-            refList = encr.encryptForInternalRef(null, encrParts);
+            refList = encr.encryptForRef(null, encrParts);
 
             // Add internal refs
             encryptedKeyElement.appendChild(refList);

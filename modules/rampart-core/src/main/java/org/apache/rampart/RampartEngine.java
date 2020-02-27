@@ -33,12 +33,22 @@ import org.apache.rampart.util.Axis2Util;
 import org.apache.rampart.util.RampartUtil;
 import org.apache.ws.secpolicy.WSSPolicyException;
 import org.apache.ws.secpolicy.model.UsernameToken;
-import org.apache.ws.security.*;
-import org.apache.ws.security.components.crypto.Crypto;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.principal.UsernameTokenPrincipal;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.engine.WSSecurityEngine;
+import org.apache.wss4j.dom.engine.WSSecurityEngineResult;
+import org.apache.wss4j.dom.handler.WSHandler;
+import org.apache.wss4j.dom.handler.WSHandlerResult;
 
 import javax.xml.namespace.QName;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Iterator;
+import java.util.Vector;
 
 public class RampartEngine {
 
@@ -81,7 +91,7 @@ public class RampartEngine {
 		}
 
 
-		List<WSSecurityEngineResult> results;
+		WSHandlerResult result;
 
 		WSSecurityEngine engine = new WSSecurityEngine();
 		
@@ -141,7 +151,7 @@ public class RampartEngine {
 			//Here we have to create the CB handler to get the tokens from the 
 			//token storage
 			log.debug("Processing security header using SymetricBinding");
-			results = engine.processSecurityHeader(rmd.getDocument(),
+			result = engine.processSecurityHeader(rmd.getDocument(),
 					actorValue, 
 					tokenCallbackHandler,
 					signatureCrypto, 
@@ -158,7 +168,7 @@ public class RampartEngine {
 		} else {
 
 			log.debug("Processing security header in normal path");
-			results = engine.processSecurityHeader(rmd.getDocument(),
+			result = engine.processSecurityHeader(rmd.getDocument(),
 					actorValue, 
 					tokenCallbackHandler,
 					signatureCrypto, 
@@ -176,6 +186,8 @@ public class RampartEngine {
                 //get the sec context id from the req msg ctx 
 		
 		//Store username in MessageContext property
+
+        List<WSSecurityEngineResult> results = result.getResults();
 
         for (int j = 0; j < results.size(); j++) {
             WSSecurityEngineResult wser = (WSSecurityEngineResult) results.get(j);
@@ -210,7 +222,7 @@ public class RampartEngine {
                 }
             } else if (WSConstants.UT == actInt) {
 
-		        WSUsernameTokenPrincipal userNameTokenPrincipal = (WSUsernameTokenPrincipal)wser.get(WSSecurityEngineResult.TAG_PRINCIPAL);
+		        UsernameTokenPrincipal userNameTokenPrincipal = (UsernameTokenPrincipal)wser.get(WSSecurityEngineResult.TAG_PRINCIPAL);
 
                 String username = userNameTokenPrincipal.getName();
                 msgCtx.setProperty(RampartMessageData.USERNAME, username);
@@ -237,13 +249,13 @@ public class RampartEngine {
 
                     String serviceEndpointName = msgCtx.getAxisService().getEndpointName();
 
-                    boolean valueRepeating = serviceNonceCache.isNonceRepeatingForService(serviceEndpointName, username, userNameTokenPrincipal.getNonce());
+                    boolean valueRepeating = serviceNonceCache.isNonceRepeatingForService(serviceEndpointName, username, new String(userNameTokenPrincipal.getNonce()));
 
                     if (valueRepeating){
                         throw new RampartException("repeatingNonceValue", new Object[]{ userNameTokenPrincipal.getNonce(), username} );
                     }
 
-                    serviceNonceCache.addNonceForService(serviceEndpointName, username, userNameTokenPrincipal.getNonce(), nonceLifeTimeInSeconds);
+                    serviceNonceCache.addNonceForService(serviceEndpointName, username, new String(userNameTokenPrincipal.getNonce()), nonceLifeTimeInSeconds);
                 }
             } else if (WSConstants.SIGN == actInt) {
                 X509Certificate cert = (X509Certificate) wser.get(WSSecurityEngineResult.TAG_X509_CERTIFICATE);

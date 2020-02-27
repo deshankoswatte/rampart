@@ -33,11 +33,11 @@ import org.apache.rahas.test.util.AbstractTestCase;
 import org.apache.rahas.test.util.TestCallbackHandler;
 import org.apache.rahas.test.util.TestSAMLCallbackHandler;
 import org.apache.rahas.test.util.TestUtil;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSEncryptionPart;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.message.WSSecEncrypt;
-import org.apache.ws.security.message.WSSecHeader;
+import org.apache.wss4j.common.WSEncryptionPart;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.message.WSSecEncrypt;
+import org.apache.wss4j.dom.message.WSSecHeader;
 import org.opensaml.xmlsec.signature.KeyInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -169,15 +169,15 @@ public class CommonUtilTest extends AbstractTestCase {
 
         Document doc = TestUtil.getTestDocument();
 
-        WSSecEncrypt builder = new WSSecEncrypt();
+        WSSecEncrypt builder = new WSSecEncrypt(doc);
         builder.setUserInfo("apache");
         builder.setKeyIdentifierType(WSConstants.BST_DIRECT_REFERENCE);
         builder.setSymmetricEncAlgorithm(WSConstants.TRIPLE_DES);
         builder.setEphemeralKey(ephemeralKey);
-        WSSecHeader secHeader = new WSSecHeader();
-        secHeader.insertSecurityHeader(doc);
+        WSSecHeader secHeader = new WSSecHeader(doc);
+        secHeader.insertSecurityHeader();
 
-        builder.prepare(doc, TestUtil.getCrypto());
+        builder.prepare(TestUtil.getCrypto());
 
         List<WSEncryptionPart> parts = new ArrayList<WSEncryptionPart>();
         WSEncryptionPart encP =
@@ -189,9 +189,9 @@ public class CommonUtilTest extends AbstractTestCase {
         Element refs = builder.encryptForRef(null, parts);
         builder.addInternalRefElement(refs);
 
-        builder.prependToHeader(secHeader);
+        builder.prependToHeader();
 
-        builder.prependBSTElementToHeader(secHeader);
+        builder.prependBSTElementToHeader();
 
         Element element = builder.getEncryptedKeyElement();
 

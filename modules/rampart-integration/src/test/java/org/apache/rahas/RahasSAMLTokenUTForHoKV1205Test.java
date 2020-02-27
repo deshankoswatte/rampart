@@ -24,7 +24,7 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.neethi.Policy;
 import org.apache.ws.secpolicy.SP12Constants;
-import org.apache.ws.security.util.WSSecurityUtil;
+import org.apache.wss4j.dom.util.WSSecurityUtil;
 
 public class RahasSAMLTokenUTForHoKV1205Test extends TestClient {
 

@@ -15,6 +15,7 @@
  */
 
 package org.apache.rampart;
+
 import org.apache.axiom.om.OMElement;
 
 public class Service {

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.rampart;
 
 import java.util.Vector;
@@ -38,7 +39,7 @@ public interface PolicyValidatorCallbackHandler {
     * @param data validator data
     * @param results policy based ws-security results 
     * @throws RampartException Rampart exception
-    */ 
-   public abstract void validate(ValidatorData data, Vector results) throws RampartException;
+    */
+   void validate(ValidatorData data, Vector results) throws RampartException;
 
 }

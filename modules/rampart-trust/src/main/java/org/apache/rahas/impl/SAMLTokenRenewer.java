@@ -17,7 +17,9 @@
 package org.apache.rahas.impl;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
@@ -33,8 +35,7 @@ import org.apache.rahas.TrustException;
 import org.apache.rahas.TrustUtil;
 import org.apache.rahas.impl.util.CommonUtil;
 import org.apache.rahas.impl.util.SAMLUtils;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.util.XmlSchemaDateFormat;
+import org.apache.wss4j.common.crypto.Crypto;
 import org.joda.time.DateTime;
 import org.opensaml.saml.saml1.core.Assertion;
 import org.opensaml.saml.saml1.core.Conditions;
@@ -117,11 +118,13 @@ public class SAMLTokenRenewer implements TokenRenewer {
         expirationTime.setTime(creationTime.getTime() + config.getTtl());
 
         // Use GMT time in milliseconds
-        DateFormat zulu = new XmlSchemaDateFormat();
+        TimeZone timeZone = TimeZone.getTimeZone("UTC");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        dateFormat.setTimeZone(timeZone);
 
         // Add the Lifetime element
-        TrustUtil.createLifetimeElement(wstVersion, rstrElem, zulu
-                .format(creationTime), zulu.format(expirationTime));
+        TrustUtil.createLifetimeElement(wstVersion, rstrElem, dateFormat
+                .format(creationTime), dateFormat.format(expirationTime));
 
         // Obtain the token
         Token tk = tkStorage.getToken(data.getTokenId());

@@ -34,7 +34,7 @@ import org.apache.axiom.soap.SOAPHeaderBlock;
 import org.apache.axiom.soap.SOAPModelBuilder;
 import org.apache.axiom.soap.impl.builder.StAXSOAPModelBuilder;
 import org.apache.rampart.handler.WSSHandlerConstants;
-import org.apache.ws.security.WSSecurityException;
+import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.xml.security.utils.XMLUtils;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.Document;
@@ -187,8 +187,8 @@ public class Axis2Util {
                 return factory.newDocumentBuilder().parse(bais);
             }
 		} catch (Exception e) {
-			throw new WSSecurityException(
-					"Error in converting SOAP Envelope to Document", e);
+			throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, e,
+					"Error in converting SOAP Envelope to Document");
 		}
 	}
 
@@ -291,7 +291,7 @@ public class Axis2Util {
                 return envelope;
 
             } catch (FactoryConfigurationError e) {
-                throw new WSSecurityException(e.getMessage());
+                throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, e.getMessage());
             }
         } else {
             try {
@@ -302,7 +302,7 @@ public class Axis2Util {
                 SOAPModelBuilder stAXSOAPModelBuilder = OMXMLBuilderFactory.createSOAPModelBuilder(bais, null);
                 return stAXSOAPModelBuilder.getSOAPEnvelope();
             } catch (Exception e) {
-                throw new WSSecurityException(e.getMessage());
+                throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, e.getMessage());
             }
         }
     }

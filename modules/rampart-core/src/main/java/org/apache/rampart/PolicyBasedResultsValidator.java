@@ -26,11 +26,18 @@ import org.apache.rampart.policy.SupportingPolicyData;
 import org.apache.rampart.util.RampartUtil;
 import org.apache.ws.secpolicy.SPConstants;
 import org.apache.ws.secpolicy.model.*;
-import org.apache.ws.security.*;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.components.crypto.CryptoType;
-import org.apache.ws.security.message.token.Timestamp;
-import org.apache.ws.security.util.WSSecurityUtil;
+import org.apache.wss4j.common.WSEncryptionPart;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.crypto.CryptoType;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.util.XMLUtils;
+import org.apache.wss4j.dom.SOAP11Constants;
+import org.apache.wss4j.dom.SOAP12Constants;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.WSDataRef;
+import org.apache.wss4j.dom.engine.WSSecurityEngineResult;
+import org.apache.wss4j.dom.message.token.Timestamp;
+import org.apache.wss4j.dom.util.WSSecurityUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -40,6 +47,7 @@ import org.jaxen.JaxenException;
 import javax.xml.namespace.QName;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.*;
 
 public class PolicyBasedResultsValidator implements ExtendedPolicyValidatorCallbackHandler {
@@ -72,7 +80,7 @@ public class PolicyBasedResultsValidator implements ExtendedPolicyValidatorCallb
         WSSecurityEngineResult tsResult = null;
         if(rpd != null &&  rpd.isIncludeTimestamp()) {
             tsResult = 
-                WSSecurityUtil.fetchActionResult(results, WSConstants.TS);
+                fetchActionResult(results, WSConstants.TS);
             if(tsResult == null && !rpd.isIncludeTimestampOptional()) {
                 throw new RampartException("timestampMissing");
             }
@@ -177,7 +185,7 @@ public class PolicyBasedResultsValidator implements ExtendedPolicyValidatorCallb
          */
 
         // Extract the signature action result from the action vector
-        WSSecurityEngineResult actionResult = WSSecurityUtil.fetchActionResult(
+        WSSecurityEngineResult actionResult = fetchActionResult(
                 results, WSConstants.SIGN);
 
         if (actionResult != null) {
@@ -203,7 +211,7 @@ public class PolicyBasedResultsValidator implements ExtendedPolicyValidatorCallb
          */
 
         // Extract the timestamp action result from the action vector
-        actionResult = WSSecurityUtil.fetchActionResult(results, WSConstants.TS);
+        actionResult = fetchActionResult(results, WSConstants.TS);
 
         if (actionResult != null) {
             Timestamp timestamp = (Timestamp) actionResult
@@ -315,14 +323,14 @@ public class PolicyBasedResultsValidator implements ExtendedPolicyValidatorCallb
             if (token instanceof UsernameToken) {
                 UsernameToken ut = (UsernameToken) token;
                 //Check presence of a UsernameToken
-                WSSecurityEngineResult utResult = WSSecurityUtil.fetchActionResult(results, WSConstants.UT);
+                WSSecurityEngineResult utResult = fetchActionResult(results, WSConstants.UT);
                 
                 if (utResult == null && !ut.isOptional()) {
                     throw new RampartException("usernameTokenMissing");
                 }
-                
-                org.apache.ws.security.message.token.UsernameToken wssUt = 
-                		(org.apache.ws.security.message.token.UsernameToken) utResult.get(WSSecurityEngineResult.TAG_USERNAME_TOKEN);
+
+                org.apache.wss4j.dom.message.token.UsernameToken wssUt =
+                		(org.apache.wss4j.dom.message.token.UsernameToken) utResult.get(WSSecurityEngineResult.TAG_USERNAME_TOKEN);
                 
                 if(ut.isNoPassword() && wssUt.getPassword() != null) {
                 	throw new RampartException("invalidUsernameTokenType");
@@ -338,18 +346,18 @@ public class PolicyBasedResultsValidator implements ExtendedPolicyValidatorCallb
                 
 
             } else if (token instanceof IssuedToken) {
-                WSSecurityEngineResult samlResult = WSSecurityUtil.fetchActionResult(results, WSConstants.ST_SIGNED);
+                WSSecurityEngineResult samlResult = fetchActionResult(results, WSConstants.ST_SIGNED);
                 // Then check for unsigned saml tokens
                 if (samlResult == null) {
                     log.debug("No signed SAMLToken found. Looking for unsigned SAMLTokens");
-                    samlResult = WSSecurityUtil.fetchActionResult(results, WSConstants.ST_UNSIGNED);
+                    samlResult = fetchActionResult(results, WSConstants.ST_UNSIGNED);
                 }
                 if (samlResult == null) {
                     throw new RampartException("samlTokenMissing");
                 }
             } else if (token instanceof X509Token) {
                 X509Token x509Token = (X509Token) token;
-                WSSecurityEngineResult x509Result = WSSecurityUtil.fetchActionResult(results, WSConstants.BST);
+                WSSecurityEngineResult x509Result = fetchActionResult(results, WSConstants.BST);
                 if (x509Result == null && !x509Token.isOptional()) {
                     throw new RampartException("binaryTokenMissing");
                 }
@@ -637,7 +645,7 @@ public class PolicyBasedResultsValidator implements ExtendedPolicyValidatorCallb
                 // This means that encrypted element of an XPath expression type. Therefore we are checking
                 // now whether an XPath expression exists. - Verify
 
-                Element element = WSSecurityUtil.findElement(
+                Element element = XMLUtils.findElement(
                         envelope, wsep.getName(), wsep.getNamespace());
 
                 if (element == null) {
@@ -682,7 +690,7 @@ public class PolicyBasedResultsValidator implements ExtendedPolicyValidatorCallb
         long maxSkew = RampartUtil.getTimestampMaxSkew(rmd);
 
         //Verify that ts->Created is before 'now'
-        Date createdTime = timestamp.getCreated();
+        Instant createdTime = timestamp.getCreated();
         if (createdTime != null) {
             long now = Calendar.getInstance().getTimeInMillis();
 
@@ -692,13 +700,13 @@ public class PolicyBasedResultsValidator implements ExtendedPolicyValidatorCallb
             }
 
             // fail if ts->Created is after 'now'
-            if (createdTime.getTime() > now) {
+            if (Date.from(createdTime).getTime() > now) {
                 return false;
             }
         }
 
         //Verify that ts->Expires is after now.
-        Date expires = timestamp.getExpires();
+        Instant expires = timestamp.getExpires();
 
         if (expires != null) {
             long now = Calendar.getInstance().getTimeInMillis();
@@ -707,7 +715,7 @@ public class PolicyBasedResultsValidator implements ExtendedPolicyValidatorCallb
                 now -= (maxSkew * 1000);
             }
             //fail if ts->Expires is before 'now'
-            if (expires.getTime() < now) {
+            if (Date.from(expires).getTime() < now) {
                 return false;
             }
         }
@@ -845,26 +853,23 @@ public class PolicyBasedResultsValidator implements ExtendedPolicyValidatorCallb
         //
         // TODO we need to configure enable revocation ...
         try {
-            if (crypto.verifyTrust(x509certs, false)) {
-                if (log.isDebugEnabled()) {
-                    log.debug(
+            crypto.verifyTrust(x509certs, false, null, null);
+            if (log.isDebugEnabled()) {
+                log.debug(
                         "Certificate path has been verified for certificate with subject "
-                         + subjectString
-                    );
-                }
-                return true;
+                                + subjectString
+                );
             }
+            return true;
         } catch (WSSecurityException e) {
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "Certificate path could not be verified for certificate with subject "
+                                + subjectString
+                );
+            }
             throw new RampartException("certPathVerificationFailed", e);
         }
-
-        if (log.isDebugEnabled()) {
-            log.debug(
-                "Certificate path could not be verified for certificate with subject "
-                + subjectString
-            );
-        }
-        return false;
     }
 
     /**
@@ -1073,5 +1078,31 @@ public class PolicyBasedResultsValidator implements ExtendedPolicyValidatorCallb
         
     }
 
-    
+    /**
+     * Fetch the result of a given action from a given result list
+     *
+     * @param resultList The result list to fetch an action from
+     * @param action The action to fetch
+     * @return The last result fetched from the result list, null if the result
+     *         could not be found
+     */
+    private static WSSecurityEngineResult fetchActionResult(
+            List<WSSecurityEngineResult> resultList,
+            int action
+    ) {
+        WSSecurityEngineResult returnResult = null;
+
+        for (WSSecurityEngineResult result : resultList) {
+            //
+            // Check the result of every action whether it matches the given action
+            //
+            int resultAction =
+                    (Integer) result.get(WSSecurityEngineResult.TAG_ACTION);
+            if (resultAction == action) {
+                returnResult = result;
+            }
+        }
+
+        return returnResult;
+    }
 }
