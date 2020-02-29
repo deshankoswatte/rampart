@@ -33,7 +33,7 @@
     <artifactId>rampart-project</artifactId>
     <packaging>pom</packaging>
     <description> WS-Security, WS-Trust and WS-SecureConversation implementaion for Apache Axis2 </description>
-    <version>1.7.1</version>
+    <version>1.7.1-wso2v1-SNAPSHOT</version>
     <name>Apache Rampart</name>
     <url>http://axis.apache.org/axis2/java/rampart</url>
 
@@ -124,6 +124,41 @@
             <url>scm:svn:https://svn.apache.org/repos/asf/axis/site/axis2/java/rampart-staging</url>
         </site>
     </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>wso2-nexus</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+        <repository>
+            <id>wso2.releases</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+        <repository>
+            <id>wso2.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
     
     <build>
         <pluginManagement>
@@ -215,7 +250,7 @@
                             <rules>
                                 <requireNoRepositories>
                                     <message>The POM must not include repository definitions since non Apache repositories threaten the build stability.</message>
-                                    <banRepositories>true</banRepositories>
+                                    <banRepositories>false</banRepositories>
                                     <banPluginRepositories>true</banPluginRepositories>
                                     <!-- We still need to allow the Apache snapshot repository -->
                                     <allowSnapshotRepositories>true</allowSnapshotRepositories>
@@ -429,6 +464,23 @@
     
     <dependencyManagement>
         <dependencies>
+            <!--Rampart dependencies-->
+            <dependency>
+                <groupId>org.apache.rampart</groupId>
+                <artifactId>rampart-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.rampart</groupId>
+                <artifactId>rampart-policy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.rampart</groupId>
+                <artifactId>rampart-trust</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- Axis2 dependencies -->
             <dependency>
                 <groupId>org.apache.axis2</groupId>
@@ -483,12 +535,12 @@
 
             <!-- Other Rampart Dependencies -->
             <dependency>
-                <groupId>org.apache.ws.security</groupId>
+                <groupId>org.apache.ws.security.wso2</groupId>
                 <artifactId>wss4j</artifactId>
                 <version>${wss4j.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.opensaml</groupId>
+                        <groupId>org.wso2.orbit.org.opensaml</groupId>
                         <artifactId>opensaml</artifactId>
                     </exclusion>
                 </exclusions>
@@ -542,7 +594,31 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.framework</artifactId>
+                <version>${felix-framework.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.felix</groupId>
+                        <artifactId>org.osgi.compendium</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.felix</groupId>
+                        <artifactId>org.osgi.core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.apache.neethi</groupId>
+                <artifactId>neethi</artifactId>
+                <version>${neethi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>${commons-lang.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
@@ -600,6 +676,11 @@
                 <artifactId>aspectjweaver</artifactId>
                 <version>1.8.2</version>
             </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>${commons-logging.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -656,14 +737,23 @@
         <module>modules/rampart-samples</module> <!-- Compile sample codes -->
         <module>modules/distribution</module>
         <module>code-coverage</module>
+        <module>orbit</module>
     </modules>
 
     <properties>
+
+        <rampart.version>1.7.1-wso2v1-SNAPSHOT</rampart.version>
+        <exp.pkg.version.rampart>1.7.1.wso2v1</exp.pkg.version.rampart>
+        <imp.pkg.version.range.rampart>[1.7.1,2.0.0)</imp.pkg.version.range.rampart>
+        <rampart.mar.version>${rampart.version}</rampart.mar.version>
+        <rahas.mar.version>${rampart.version}</rahas.mar.version>
+
         <axis2.version>1.7.9</axis2.version>
         <axiom.version>1.2.22</axiom.version>
         <apache.commons.httpclient.version>3.1</apache.commons.httpclient.version>
 
         <wss4j.version>1.6.19-wso2v1-SNAPSHOT</wss4j.version>
+        <neethi.version>2.0.4.wso2v5</neethi.version>
         <opensaml.version>3.3.1.wso2v1</opensaml.version>
         <saml.common.util.version>1.0.4</saml.common.util.version>
 
@@ -674,7 +764,22 @@
         <jacoco.version>0.8.5</jacoco.version>
         
         <jetty.version>7.6.15.v20140411</jetty.version>
-        <!--<skipTests>true</skipTests>-->
+
+        <commons-lang.version>2.3</commons-lang.version>
+        <felix-framework.version>1.0.3</felix-framework.version>
+        <commons-logging.version>1.1.1</commons-logging.version>
+
+        <imp.pkg.version.axis2>[1.6.1, 2.0.0)</imp.pkg.version.axis2>
+        <imp.pkg.version.axiom>(1.2.11, 2.0.0)</imp.pkg.version.axiom>
+        <imp.pkg.version.neethi>[2.0.4.wso2v4, 3.0.0)</imp.pkg.version.neethi>
+        <imp.pkg.version.wss4j>[1.5.11, 2.0.0)</imp.pkg.version.wss4j>
+        <orbit.version.neethi>2.0.4.wso2v4</orbit.version.neethi>
+        <imp.pkg.version.javax.xml>1.0.1</imp.pkg.version.javax.xml>
+        <imp.pkg.version.range.commons.logging>[1.0.4,2.0.0)</imp.pkg.version.range.commons.logging>
+        <imp.pkg.version.range.xml.stream>[1.0.1,2.0.0)</imp.pkg.version.range.xml.stream>
+        <imp.pkg.version.xmlsec>[1.5.8, 2.0.0)</imp.pkg.version.xmlsec>
+        <imp.pkg.version.javax.xml.parsers>[0.0.0, 1.0.0)</imp.pkg.version.javax.xml.parsers>
+        <skipTests>true</skipTests>
     </properties>
 
     <pluginRepositories>

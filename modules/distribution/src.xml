@@ -56,7 +56,7 @@
             <filtered>true</filtered>
         </file>
         <file>
-            <source>../../src/site/markdown/release-notes/${release_version}.md</source>
+            <source>../../src/site/markdown/release-notes/1.7.1.md</source>
             <destName>RELEASE-NOTE</destName>
         </file>
     </files>
