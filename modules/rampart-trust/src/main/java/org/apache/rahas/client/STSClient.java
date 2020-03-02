@@ -478,8 +478,7 @@ public class STSClient {
             } else if (child.getQName().equals(new QName(ns, WSConstants.ENC_KEY_LN))) {
 
                 Element domChild = (Element) new StAXOMBuilder(
-                        OMAbstractFactory.getMetaFactory(
-                                OMAbstractFactory.FEATURE_DOM).getOMFactory(),
+                        OMAbstractFactory.getMetaFactory().getOMFactory(),
                         child.getXMLStreamReader()).getDocumentElement();
 
                 try {

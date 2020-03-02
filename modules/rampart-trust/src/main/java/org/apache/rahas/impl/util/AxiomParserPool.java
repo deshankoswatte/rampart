@@ -18,16 +18,12 @@
  */
 package org.apache.rahas.impl.util;
 
-import static org.apache.axiom.om.OMAbstractFactory.FEATURE_DOM;
-
 import java.lang.reflect.Field;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.shibboleth.utilities.java.support.xml.ParserPool;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
-import org.apache.axiom.om.OMAbstractFactory;
-import org.apache.axiom.om.dom.DOMMetaFactory;
 
 /**
  * Custom OpenSAML {@link ParserPool} implementation that uses a DOM aware Axiom implementation
@@ -35,8 +31,7 @@ import org.apache.axiom.om.dom.DOMMetaFactory;
  */
 public class AxiomParserPool extends BasicParserPool {
     public AxiomParserPool() {
-        DOMMetaFactory metaFactory = (DOMMetaFactory)OMAbstractFactory.getMetaFactory(FEATURE_DOM);
-        DocumentBuilderFactory dbf = metaFactory.newDocumentBuilderFactory();
+        DocumentBuilderFactory dbf = new DOOMDocumentBuilderFactory();
         // Unfortunately, ParserPool doesn't allow to set the DocumentBuilderFactory, so that we
         // have to use reflection here.
         try {

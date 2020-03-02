@@ -335,7 +335,7 @@ public class RahasData {
                                                    "SecurityTokenReference"));
             
             Element elem = (Element)OMXMLBuilderFactory.createStAXOMBuilder(
-                    OMAbstractFactory.getMetaFactory(OMAbstractFactory.FEATURE_DOM).getOMFactory(),
+                    OMAbstractFactory.getMetaFactory().getOMFactory(),
                     strElem.getXMLStreamReader()).getDocumentElement();
             
             try {
@@ -362,7 +362,7 @@ public class RahasData {
                                                    "SecurityTokenReference"));
             
             Element elem = (Element)OMXMLBuilderFactory.createStAXOMBuilder(
-                    OMAbstractFactory.getMetaFactory(OMAbstractFactory.FEATURE_DOM).getOMFactory(),
+                    OMAbstractFactory.getMetaFactory().getOMFactory(),
                     strElem.getXMLStreamReader()).getDocumentElement();
             
             try {

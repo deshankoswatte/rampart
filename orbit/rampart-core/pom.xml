@@ -132,6 +132,10 @@
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+        </dependency>
 
     </dependencies>
 
@@ -169,7 +173,7 @@
                             javax.servlet.http,
                             javax.xml.namespace,
                             javax.xml.parsers; version="${imp.pkg.version.javax.xml.parsers}",
-                            org.apache.commons.httpclient.protocol,
+                            <!--org.apache.commons.httpclient.protocol,-->
                             org.apache.rahas; version="${imp.pkg.version.range.rampart}",
                             org.apache.rahas.client; version="${imp.pkg.version.range.rampart}",
                             org.apache.rahas.impl.util; version="${imp.pkg.version.range.rampart}",
@@ -181,6 +185,10 @@
                             org.w3c.dom
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
+                        <Embed-Dependency>
+                            commons-httpclient;inline=false
+                        </Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>
             </plugin>

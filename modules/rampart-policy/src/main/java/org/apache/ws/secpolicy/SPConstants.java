@@ -131,6 +131,13 @@ public class SPConstants {
     
     public final static String USERNAME_TOKEN11 = "WssUsernameToken11";
 
+
+    public final static String KERBEROS_TOKEN = "KerberosToken";
+
+    public static final String REQUIRE_KERBEROS_V5_TOKEN_11 = "WssKerberosV5ApReqToken11";
+
+    public static final String REQUIRE_KERBEROS_GSS_V5_TOKEN_11 = "WssGssKerberosV5ApReqToken11";
+
     
     public final static String TRANSPORT_TOKEN = "TransportToken";
     

@@ -35,7 +35,7 @@ import org.apache.ws.secpolicy.SPConstants;
 import org.apache.ws.secpolicy.model.EncryptionToken;
 import org.apache.ws.secpolicy.model.Token;
 
-public class EncryptionTokenBuilder  implements AssertionBuilder<OMElement> {
+public class EncryptionTokenBuilder  implements AssertionBuilder {
 
     public Assertion build(OMElement element, AssertionBuilderFactory factory) throws IllegalArgumentException {
         EncryptionToken encrToken = new EncryptionToken(SPConstants.SP_V12);

@@ -20,19 +20,20 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.AssertionBuilderFactory;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyEngine;
 import org.apache.neethi.builders.AssertionBuilder;
-import org.apache.neethi.builders.PrimitiveAssertion;
+import org.apache.neethi.builders.xml.XmlPrimtiveAssertion;
 import org.apache.ws.secpolicy.SP11Constants;
 import org.apache.ws.secpolicy.SPConstants;
 import org.apache.ws.secpolicy.model.HttpsToken;
 import org.apache.ws.secpolicy.model.TransportToken;
 
-public class TransportTokenBuilder implements AssertionBuilder<OMElement> {
+public class TransportTokenBuilder implements AssertionBuilder {
     
    
     
@@ -57,14 +58,14 @@ public class TransportTokenBuilder implements AssertionBuilder<OMElement> {
     private void processAlternative(List<Assertion> assertions, TransportToken parent) {
         
         for (Iterator<Assertion> iterator = assertions.iterator(); iterator.hasNext();) {
-            Assertion primtive = iterator.next();
+            XmlPrimtiveAssertion primtive = (XmlPrimtiveAssertion)iterator.next();
             QName qname = primtive.getName();
             
             if (SP11Constants.HTTPS_TOKEN.equals(qname)) {
                 HttpsToken httpsToken = new HttpsToken(SPConstants.SP_V11);
-                String attr = ((PrimitiveAssertion)primtive).getAttribute(SPConstants.REQUIRE_CLIENT_CERTIFICATE);
+                OMAttribute attr = (primtive).getValue().getAttribute(SPConstants.REQUIRE_CLIENT_CERTIFICATE);
                 if(attr != null) {
-                    httpsToken.setRequireClientCertificate("true".equals(attr));
+                    httpsToken.setRequireClientCertificate("true".equals(attr.getAttributeValue()));
                 }
                 parent.setToken(httpsToken);
             }

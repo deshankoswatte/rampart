@@ -113,6 +113,8 @@ public class RampartConfig implements Assertion {
     public final static String OPTIMISE_PARTS = "optimizeParts";
 
     public final static String SSL_CONFIG = "sslConfig";
+
+    public final static String KERBEROS_CONFIG = "kerberosConfig";
     
     private String user;
     
@@ -136,6 +138,8 @@ public class RampartConfig implements Assertion {
     
     private CryptoConfig stsCryptoConfig;
 
+    private KerberosConfig kerberosConfig;
+
     private String timestampPrecisionInMilliseconds = Boolean.toString(DEFAULT_TIMESTAMP_PRECISION_IN_MS);
     private boolean isTimestampPrecisionInMs = DEFAULT_TIMESTAMP_PRECISION_IN_MS;
     
@@ -153,6 +157,14 @@ public class RampartConfig implements Assertion {
 
     /*To set timeStampStrict in WSSConfig through rampartConfig - default value is false*/
     private boolean timeStampStrict = false;
+
+    public KerberosConfig getKerberosConfig() {
+        return kerberosConfig;
+    }
+
+    public void setKerberosConfig(KerberosConfig kerberosConfig) {
+        this.kerberosConfig = kerberosConfig;
+    }
     
     public SSLConfig getSSLConfig() {
         return sslConfig;

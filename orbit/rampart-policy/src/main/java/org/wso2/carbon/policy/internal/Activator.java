@@ -57,6 +57,7 @@ public class Activator implements BundleActivator {
             "org.apache.ws.secpolicy11.builders.RequiredElementsBuilder",
             "org.apache.ws.secpolicy11.builders.SignatureTokenBuilder",
             "org.apache.ws.secpolicy11.builders.EncryptionTokenBuilder",
+            "org.apache.ws.secpolicy11.builders.KerberosTokenBuilder",
             "org.apache.ws.secpolicy12.builders.AlgorithmSuiteBuilder",
             "org.apache.ws.secpolicy12.builders.AsymmetricBindingBuilder",
             "org.apache.ws.secpolicy12.builders.EncryptedElementsBuilder",
@@ -83,7 +84,8 @@ public class Activator implements BundleActivator {
             "org.apache.ws.secpolicy12.builders.ContentEncryptedElementsBuilder",
             "org.apache.ws.secpolicy12.builders.HttpsTokenBuilder",
             "org.apache.ws.secpolicy12.builders.SignatureTokenBuilder",
-            "org.apache.ws.secpolicy12.builders.EncryptionTokenBuilder"
+            "org.apache.ws.secpolicy12.builders.EncryptionTokenBuilder",
+            "org.apache.ws.secpolicy12.builders.KerberosTokenBuilder"
     };
 
     public void start(BundleContext bundleContext) throws Exception {

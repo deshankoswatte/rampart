@@ -16,9 +16,7 @@
 
 package org.apache.rahas.impl.util;
 
-import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.dom.DOMMetaFactory;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.description.Parameter;
 import org.apache.commons.logging.Log;
@@ -57,8 +55,6 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Properties;
 
-import static org.apache.axiom.om.OMAbstractFactory.FEATURE_DOM;
-
 /**
  * This class implements some utility methods common to SAML1 and SAML2.
  */
@@ -72,8 +68,7 @@ public class CommonUtil {
      * @throws TrustException If an error occurred while creating the Document.
      */
     public static Document getOMDOMDocument() throws TrustException {
-        DOMMetaFactory metaFactory = (DOMMetaFactory) OMAbstractFactory.getMetaFactory(FEATURE_DOM);
-            DocumentBuilderFactory dbf = metaFactory.newDocumentBuilderFactory();
+        DocumentBuilderFactory dbf = new DOOMDocumentBuilderFactory();
         try {
             return  dbf.newDocumentBuilder().newDocument();
         } catch (ParserConfigurationException e) {

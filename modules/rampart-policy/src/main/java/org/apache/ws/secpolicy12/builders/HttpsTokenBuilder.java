@@ -42,7 +42,7 @@ import java.util.List;
  * alternatives in the HttpsToken considering both cases whether the policy is normalized or not.
  * 
  */
-public class HttpsTokenBuilder implements AssertionBuilder<OMElement> {
+public class HttpsTokenBuilder implements AssertionBuilder {
     
     /**
      * {@inheritDoc}

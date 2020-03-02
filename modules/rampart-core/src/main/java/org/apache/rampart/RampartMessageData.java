@@ -244,7 +244,7 @@ public class RampartMessageData {
                 } catch (NullPointerException e) {
                     //TODO remove this once AXIS2-4114 is fixed
                     if (axisService != null) {
-                        Collection<PolicyComponent> policyList = new ArrayList<PolicyComponent>();
+                        List<PolicyComponent> policyList = new ArrayList<PolicyComponent>();
                         policyList.addAll(axisService.getPolicySubject().getAttachedPolicyComponents());
                         AxisConfiguration axisConfiguration = axisService.getAxisConfiguration();
                         policyList.addAll(axisConfiguration.getPolicySubject().getAttachedPolicyComponents());
@@ -262,7 +262,7 @@ public class RampartMessageData {
             }
             
             if(this.servicePolicy != null){
-                List<Assertion> it = this.servicePolicy.getAlternatives().next();
+                List<Assertion> it = (List<Assertion>) this.servicePolicy.getAlternatives().next();
 
                 //Process policy and build policy data
                 this.policyData = RampartPolicyBuilder.build(it);
@@ -431,7 +431,7 @@ public class RampartMessageData {
             this.servicePolicy.addAssertion(rc);
         }
 
-        List<Assertion> it = this.servicePolicy.getAlternatives().next();
+        List<Assertion> it = (List<Assertion>) this.servicePolicy.getAlternatives().next();
 
         //Process policy and build policy data
         try {

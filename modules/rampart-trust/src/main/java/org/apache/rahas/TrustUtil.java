@@ -421,7 +421,7 @@ public class TrustUtil {
      * @return SOAPEnvelope
      */
     public static SOAPEnvelope createSOAPEnvelope(String nsUri) {
-    	OMMetaFactory domFac = OMAbstractFactory.getMetaFactory(OMAbstractFactory.FEATURE_DOM);
+    	OMMetaFactory domFac = OMAbstractFactory.getMetaFactory();
         if (nsUri != null
             && SOAP11Constants.SOAP_ENVELOPE_NAMESPACE_URI.equals(nsUri)) {
 			return domFac.getSOAP11Factory().getDefaultEnvelope();

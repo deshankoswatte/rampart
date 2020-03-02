@@ -31,7 +31,7 @@ import org.apache.ws.secpolicy.model.AlgorithmSuite;
 
 import javax.xml.namespace.QName;
 
-public class AlgorithmSuiteBuilder implements AssertionBuilder<OMElement> {
+public class AlgorithmSuiteBuilder implements AssertionBuilder {
         
     public Assertion build(OMElement element, AssertionBuilderFactory factory) throws IllegalArgumentException {
         

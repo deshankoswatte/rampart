@@ -485,23 +485,23 @@
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-kernel</artifactId>
-                <version>${axis2.version}</version>
+                <version>${axis2.wso2.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-mtompolicy</artifactId>
-                <version>${axis2.version}</version>
+                <version>${axis2.wso2.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>mex</artifactId>
-                <version>${axis2.version}</version>
+                <version>${axis2.wso2.version}</version>
                 <classifier>impl</classifier>
             </dependency>
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>addressing</artifactId>
-                <version>${axis2.version}</version>
+                <version>${axis2.wso2.version}</version>
                 <type>mar</type>
             </dependency>
             
@@ -522,11 +522,11 @@
                 <artifactId>axiom-dom</artifactId>
                 <version>${axiom.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.ws.commons.axiom</groupId>
-                <artifactId>axiom-truth</artifactId>
-                <version>${axiom.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.ws.commons.axiom</groupId>-->
+                <!--<artifactId>axiom-truth</artifactId>-->
+                <!--<version>${axiom.version}</version>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>commons-httpclient</groupId>
                 <artifactId>commons-httpclient</artifactId>
@@ -748,8 +748,9 @@
         <rampart.mar.version>${rampart.version}</rampart.mar.version>
         <rahas.mar.version>${rampart.version}</rahas.mar.version>
 
-        <axis2.version>1.7.9</axis2.version>
-        <axiom.version>1.2.22</axiom.version>
+        <axis2.wso2.version>1.6.1-wso2v41</axis2.wso2.version>
+        <axis2.version>1.6.1</axis2.version>
+        <axiom.version>1.2.11-wso2v16</axiom.version>
         <apache.commons.httpclient.version>3.1</apache.commons.httpclient.version>
 
         <wss4j.version>1.6.19-wso2v1-SNAPSHOT</wss4j.version>
@@ -772,7 +773,7 @@
         <imp.pkg.version.axis2>[1.6.1, 2.0.0)</imp.pkg.version.axis2>
         <imp.pkg.version.axiom>(1.2.11, 2.0.0)</imp.pkg.version.axiom>
         <imp.pkg.version.neethi>[2.0.4.wso2v4, 3.0.0)</imp.pkg.version.neethi>
-        <imp.pkg.version.wss4j>[1.5.11, 2.0.0)</imp.pkg.version.wss4j>
+        <imp.pkg.version.wss4j>[1.6.19, 2.0.0)</imp.pkg.version.wss4j>
         <orbit.version.neethi>2.0.4.wso2v4</orbit.version.neethi>
         <imp.pkg.version.javax.xml>1.0.1</imp.pkg.version.javax.xml>
         <imp.pkg.version.range.commons.logging>[1.0.4,2.0.0)</imp.pkg.version.range.commons.logging>

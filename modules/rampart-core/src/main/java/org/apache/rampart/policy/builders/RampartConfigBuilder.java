@@ -25,8 +25,9 @@ import org.apache.rampart.policy.model.CryptoConfig;
 import org.apache.rampart.policy.model.OptimizePartsConfig;
 import org.apache.rampart.policy.model.RampartConfig;
 import org.apache.rampart.policy.model.SSLConfig;
+import org.apache.rampart.policy.model.KerberosConfig;
 
-public class RampartConfigBuilder implements AssertionBuilder<OMElement> {
+public class RampartConfigBuilder implements AssertionBuilder {
 
     public Assertion build(OMElement element, AssertionBuilderFactory factory)
             throws IllegalArgumentException {
@@ -86,6 +87,16 @@ public class RampartConfigBuilder implements AssertionBuilder<OMElement> {
         			                  factory);
             rampartConfig.setSSLConfig(sslConfig);
             
+        }
+
+        childElement = element.getFirstChildWithName(new QName(
+                RampartConfig.NS, RampartConfig.KERBEROS_CONFIG));
+        if (childElement != null) {
+            KerberosConfig krbConfig = (KerberosConfig)new KerberosConfigBuilder().
+                    build(childElement,
+                            factory);
+            rampartConfig.setKerberosConfig(krbConfig);
+
         }
         
         childElement = element.getFirstChildWithName(new QName(

@@ -30,6 +30,19 @@ public class SP11Constants {
     
     ////////////////////////////////////////////////////////////////////////
 
+    // //////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static final QName KERBEROS_TOKEN = new QName(SP11Constants.SP_NS,
+            SPConstants.KERBEROS_TOKEN, SP11Constants.SP_PREFIX);
+
+    public static final QName REQUIRE_KERBEROS_GSS_V5_TOKEN_11 = new QName(SP11Constants.SP_NS,
+            SPConstants.REQUIRE_KERBEROS_GSS_V5_TOKEN_11, SP11Constants.SP_PREFIX);
+
+    public static final QName REQUIRE_KERBEROS_V5_TOKEN_11 = new QName(SP11Constants.SP_NS,
+            SPConstants.REQUIRE_KERBEROS_V5_TOKEN_11, SP11Constants.SP_PREFIX);
+
+    // //////////////////////////////////////////////////////////////////////////////////////////////
+
 
     public static final QName TRANSPORT_BINDING = new QName(SP_NS,
             SPConstants.TRANSPORT_BINDING , SP11Constants.SP_PREFIX);

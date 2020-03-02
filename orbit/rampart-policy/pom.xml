@@ -170,6 +170,11 @@
                             org.apache.commons.logging; version="${imp.pkg.version.range.commons.logging}"
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
+                        <!--<Embed-Dependency>-->
+                            <!--axiom-api;inline=false, axiom-impl;inline=false,-->
+                            <!--axiom-dom;inline=false, axiom-truth;inline=false-->
+                        <!--</Embed-Dependency>-->
+                        <!--<Embed-Transitive>true</Embed-Transitive>-->
                     </instructions>
                 </configuration>
             </plugin>

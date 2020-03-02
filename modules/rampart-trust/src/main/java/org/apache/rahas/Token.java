@@ -39,7 +39,8 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMMetaFactory;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.OMXMLParserWrapper;
-import org.apache.axiom.om.OMXMLStreamReaderConfiguration;
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.axiom.om.impl.dom.DOOMAbstractFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ws.security.WSConstants;
@@ -144,11 +145,10 @@ public class Token implements Externalizable {
     public Token(String id, OMElement tokenElem, Date created, Date expires)
         throws TrustException {
         this.id = id;
-        OMMetaFactory metaFactory = OMAbstractFactory.getMetaFactory(OMAbstractFactory.FEATURE_DOM);
-        OMXMLStreamReaderConfiguration configuration = new OMXMLStreamReaderConfiguration();
-        configuration.setNamespaceURIInterning(true);
-        this.token = OMXMLBuilderFactory.createStAXOMBuilder(metaFactory.getOMFactory(),
-                tokenElem.getXMLStreamReader(true, configuration)).getDocumentElement();
+        StAXOMBuilder stAXOMBuilder =
+                new StAXOMBuilder(DOOMAbstractFactory.getOMFactory(), tokenElem.getXMLStreamReader());
+        stAXOMBuilder.setNamespaceURIInterning(true);
+        this.token = stAXOMBuilder.getDocumentElement();
         this.created = created;
         this.expires = expires;
     }
@@ -156,11 +156,10 @@ public class Token implements Externalizable {
     public Token(String id, OMElement tokenElem, OMElement lifetimeElem)
         throws TrustException {
         this.id = id;
-        OMMetaFactory metaFactory = OMAbstractFactory.getMetaFactory(OMAbstractFactory.FEATURE_DOM);
-        OMXMLStreamReaderConfiguration configuration = new OMXMLStreamReaderConfiguration();
-        configuration.setNamespaceURIInterning(true);
-        this.token = OMXMLBuilderFactory.createStAXOMBuilder(metaFactory.getOMFactory(),
-                tokenElem.getXMLStreamReader(true, configuration)).getDocumentElement();
+        StAXOMBuilder stAXOMBuilder =
+                new StAXOMBuilder(DOOMAbstractFactory.getOMFactory(), tokenElem.getXMLStreamReader());
+        stAXOMBuilder.setNamespaceURIInterning(true);
+        this.token = stAXOMBuilder.getDocumentElement();
         this.processLifeTime(lifetimeElem);
     }
 
@@ -260,9 +259,8 @@ public class Token implements Externalizable {
      * @param presivousToken The presivousToken to set.
      */
     public void setPreviousToken(OMElement presivousToken) {
-    	OMMetaFactory metaFactory = OMAbstractFactory.getMetaFactory(OMAbstractFactory.FEATURE_DOM);
-        this.previousToken = OMXMLBuilderFactory.createStAXOMBuilder(metaFactory.getOMFactory(),
-                presivousToken.getXMLStreamReader()).getDocumentElement();
+        this.previousToken = new StAXOMBuilder(DOOMAbstractFactory.getOMFactory(), presivousToken.getXMLStreamReader())
+                .getDocumentElement();
     }
 
     /**
@@ -291,10 +289,9 @@ public class Token implements Externalizable {
      */
     public void setAttachedReference(OMElement attachedReference) {
         if (attachedReference != null) {
-        	OMMetaFactory metaFactory = OMAbstractFactory.getMetaFactory(OMAbstractFactory.FEATURE_DOM);
             this.attachedReference =
-                OMXMLBuilderFactory.createStAXOMBuilder(metaFactory.getOMFactory(),
-                        attachedReference.getXMLStreamReader()).getDocumentElement();
+                    new StAXOMBuilder(DOOMAbstractFactory.getOMFactory(), attachedReference.getXMLStreamReader())
+                            .getDocumentElement();
         }
     }
 
@@ -310,10 +307,9 @@ public class Token implements Externalizable {
      */
     public void setUnattachedReference(OMElement unattachedReference) {
         if (unattachedReference != null) {
-        	OMMetaFactory metaFactory = OMAbstractFactory.getMetaFactory(OMAbstractFactory.FEATURE_DOM);
             this.unattachedReference =
-                OMXMLBuilderFactory.createStAXOMBuilder(metaFactory.getOMFactory(),
-                        unattachedReference.getXMLStreamReader()).getDocumentElement();
+                    new StAXOMBuilder(DOOMAbstractFactory.getOMFactory(), unattachedReference.getXMLStreamReader())
+                            .getDocumentElement();
         }
     }
 
@@ -466,7 +462,7 @@ public class Token implements Externalizable {
     }
 
     private OMElement convertStringToOMElement(String stringElement)
-        throws IOException {
+            throws IOException {
 
         if (null == stringElement || stringElement.trim().equals("")) {
             return null;
@@ -475,15 +471,14 @@ public class Token implements Externalizable {
         try {
             Reader in = new StringReader(stringElement);
             XMLStreamReader parser = XMLInputFactory.newInstance().createXMLStreamReader(in);
-            OMXMLParserWrapper builder = OMXMLBuilderFactory.createStAXOMBuilder(parser);
+            StAXOMBuilder builder = new StAXOMBuilder(parser);
             OMElement documentElement = builder.getDocumentElement();
 
             XMLStreamReader llomReader = documentElement.getXMLStreamReader();
-            OMMetaFactory metaFactory = OMAbstractFactory.getMetaFactory(OMAbstractFactory.FEATURE_DOM);
-            OMFactory doomFactory = metaFactory.getOMFactory();
-            OMXMLParserWrapper doomBuilder = OMXMLBuilderFactory.createStAXOMBuilder(doomFactory, llomReader);
+            OMFactory doomFactory = DOOMAbstractFactory.getOMFactory();
+            StAXOMBuilder doomBuilder = new StAXOMBuilder(doomFactory, llomReader);
             return doomBuilder.getDocumentElement();
-            
+
         } catch (XMLStreamException e) {
             log.error("Cannot convert de-serialized string to OMElement. Could not create XML stream.", e);
             // IOException only has a constructor supporting exception chaining starting with Java 1.6

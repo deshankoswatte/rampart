@@ -129,6 +129,22 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.ws.commons.axiom</groupId>-->
+            <!--<artifactId>axiom-api</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.ws.commons.axiom</groupId>-->
+            <!--<artifactId>axiom-impl</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.ws.commons.axiom</groupId>-->
+            <!--<artifactId>axiom-dom</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.ws.commons.axiom</groupId>-->
+            <!--<artifactId>axiom-truth</artifactId>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>
@@ -187,6 +203,11 @@
                             !org.wso2.carbon
                         </Private-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
+                        <!--<Embed-Dependency>-->
+                            <!--axiom-api;inline=false, axiom-impl;inline=false,-->
+                            <!--axiom-dom;inline=false, axiom-truth;inline=false-->
+                        <!--</Embed-Dependency>-->
+                        <!--<Embed-Transitive>true</Embed-Transitive>-->
                     </instructions>
                 </configuration>
             </plugin>

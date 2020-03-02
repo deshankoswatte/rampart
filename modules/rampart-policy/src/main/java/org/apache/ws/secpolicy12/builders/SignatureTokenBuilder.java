@@ -35,7 +35,7 @@ import org.apache.ws.secpolicy.SPConstants;
 import org.apache.ws.secpolicy.model.SignatureToken;
 import org.apache.ws.secpolicy.model.Token;
 
-public class SignatureTokenBuilder  implements AssertionBuilder<OMElement> {
+public class SignatureTokenBuilder  implements AssertionBuilder {
 
     public Assertion build(OMElement element, AssertionBuilderFactory factory) throws IllegalArgumentException {
     	SignatureToken sigToken = new SignatureToken(SPConstants.SP_V12);

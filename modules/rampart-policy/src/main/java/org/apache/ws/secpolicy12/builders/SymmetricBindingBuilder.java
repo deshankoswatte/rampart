@@ -36,7 +36,7 @@ import org.apache.ws.secpolicy.model.ProtectionToken;
 import org.apache.ws.secpolicy.model.SignatureToken;
 import org.apache.ws.secpolicy.model.SymmetricBinding;
 
-public class SymmetricBindingBuilder implements AssertionBuilder<OMElement> {
+public class SymmetricBindingBuilder implements AssertionBuilder {
 
     public Assertion build(OMElement element, AssertionBuilderFactory factory) throws IllegalArgumentException {
         SymmetricBinding symmetricBinding = new SymmetricBinding(SPConstants.SP_V12); 

@@ -30,7 +30,7 @@ import javax.xml.namespace.QName;
 import java.util.Iterator;
 import java.util.List;
 
-public class TransportTokenBuilder implements AssertionBuilder<OMElement> {
+public class TransportTokenBuilder implements AssertionBuilder {
 
     public Assertion build(OMElement element, AssertionBuilderFactory factory) throws IllegalArgumentException {
         TransportToken transportToken = new TransportToken(SPConstants.SP_V12);
